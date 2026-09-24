@@ -112,7 +112,7 @@ export class Envelope {
       this.listenToGyro();
 
       const fonts = Promise.all([
-        document.fonts.load('1em "Pinyon Script"'),
+        document.fonts.load('1em "Parisienne"'),
         document.fonts.load('italic 1em "Bodoni Moda Variable"'),
       ]);
       const timeout = new Promise((resolve) => setTimeout(resolve, 1500));
@@ -168,7 +168,16 @@ export class Envelope {
     t.ry += (g.ry - t.ry) * k;
     t.lx += (g.lx - t.lx) * k;
     t.ly += (g.ly - t.ly) * k;
+    this.applyTilt();
 
+    // Remove the intro once the card is gone and the last petal has landed.
+    if (this.phase() === 'leaving' && !this.done && performance.now() - this.leaveAt > 900 && !this.field?.busy) {
+      this.finish();
+    }
+  }
+
+  private applyTilt(): void {
+    const t = this.tilt;
     const el = this.tiltEl().nativeElement.style;
     el.setProperty('--rx', `${t.rx.toFixed(2)}deg`);
     el.setProperty('--ry', `${t.ry.toFixed(2)}deg`);
@@ -176,11 +185,22 @@ export class Envelope {
     el.setProperty('--ly', `${t.ly.toFixed(1)}%`);
     this.host.style.setProperty('--px', `${(-t.ry * 1.4).toFixed(1)}px`);
     this.host.style.setProperty('--py', `${(t.rx * 1.4).toFixed(1)}px`);
+  }
 
-    // Remove the intro once the card is gone and the last petal has landed.
-    if (this.phase() === 'leaving' && !this.done && performance.now() - this.leaveAt > 900 && !this.field?.busy) {
-      this.finish();
-    }
+  /**
+   * Phones without a gyro tilt via a CSS sway, which stops once opening starts.
+   * Start the eased tilt from wherever the sway is, so the envelope settles flat
+   * instead of freezing askew (or snapping) while it opens.
+   */
+  private takeOverSway(): void {
+    const cs = getComputedStyle(this.tiltEl().nativeElement);
+    const read = (name: string, fallback: number) => {
+      const v = parseFloat(cs.getPropertyValue(name));
+      return Number.isFinite(v) ? v : fallback;
+    };
+    const t = this.tilt;
+    this.tilt = { rx: read('--rx', t.rx), ry: read('--ry', t.ry), lx: read('--lx', t.lx), ly: read('--ly', t.ly) };
+    this.applyTilt();
   }
 
   // ---------- opening ----------
@@ -207,6 +227,7 @@ export class Envelope {
       return;
     }
 
+    this.takeOverSway();
     this.phase.set('opening');
     this.field?.stopAmbient();
     navigator.vibrate?.(12);

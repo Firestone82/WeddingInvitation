@@ -2,14 +2,14 @@
 @import '@fontsource-variable/bodoni-moda/opsz.css';
 @import '@fontsource-variable/bodoni-moda/opsz-italic.css';
 @import '@fontsource-variable/jost/wght.css';
-@import '@fontsource/pinyon-script/index.css';
+@import '@fontsource/parisienne/index.css';
 @import 'tailwindcss';
 
 /* ---------- design tokens ---------- */
 
 @theme static {
   --font-display: 'Bodoni Moda Variable', 'Bodoni 72', Didot, Georgia, serif;
-  --font-script: 'Pinyon Script', 'Snell Roundhand', 'Apple Chancery', cursive;
+  --font-script: 'Parisienne', 'Snell Roundhand', 'Apple Chancery', cursive;
   --font-sans: 'Jost Variable', 'Avenir Next', 'Segoe UI', system-ui, sans-serif;
 
   --color-bottle: #23443a;
@@ -97,7 +97,7 @@
     font-variant-numeric: lining-nums tabular-nums;
   }
 
-  /* Pinyon's own "&" is an old copperplate form few people recognise; borrow Bodoni's */
+  /* a Bodoni italic "&" sits better between the names than the script's own */
   .script-amp {
     font-family: var(--font-display);
     font-style: italic;
