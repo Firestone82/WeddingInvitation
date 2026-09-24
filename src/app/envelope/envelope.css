@@ -156,9 +156,13 @@
   50% { --rx: -2deg; --ry: 5deg; --lx: 72%; --ly: 38%; }
 }
 
-:host(.is-opening) .float,
-:host(.is-opening) .tilt {
+:host(.is-opening) .float {
   animation-play-state: paused;
+}
+
+/* the script takes over from the sway and eases the envelope flat */
+:host(.is-opening) .tilt {
+  animation: none;
 }
 
 /* contact shadow on the table, breathing with the float */
@@ -317,12 +321,41 @@
 
 /* ---------- flap ---------- */
 
+/*
+ * The flap's shadow is its own flat layer. A filter on the rotating flap
+ * has to be redrawn every frame, which stalls phones mid-swing so the flap
+ * seems to vanish and pop open.
+ */
+.flap-shadow {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 5;
+  height: 58%;
+  translate: 0 3px;
+  filter: blur(2.5px);
+  pointer-events: none;
+  transition: opacity 250ms ease 480ms;
+}
+
+.flap-shadow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(0 0, 100% 0, 54% 95%, 50% 100%, 46% 95%);
+  background: rgb(10 25 20 / 0.35);
+}
+
+:host(.is-opening) .flap-shadow {
+  opacity: 0;
+}
+
 .flap-wrap {
   inset: 0 0 auto;
   z-index: 6;
   height: 58%;
   transform-origin: 50% 0;
-  filter: drop-shadow(0 3px 3px rgb(10 25 20 / 0.35));
+  transform: rotateX(0deg);
+  will-change: transform;
   transition:
     transform 900ms var(--ease-flap) 480ms,
     z-index 0s linear 930ms;
@@ -803,6 +836,7 @@
     opacity: 1;
   }
 
+  .flap-shadow,
   .flap-wrap,
   .flap-liner,
   .letter {

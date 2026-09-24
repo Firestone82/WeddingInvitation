@@ -19,7 +19,7 @@ Almost everything is in **`src/app/config/wedding.config.ts`**: names, date, ven
 - **Photo**: put your picture in `public/images/` and change `couple.photo`. Portrait 3:4 works best; the arch crops the top corners.
 - **Link preview image**: add `public/images/share.jpg` (1200×630) for WhatsApp/Messenger previews, or remove the `og:image` tag.
 - **Colours and fonts**: tokens are in the `@theme` block of `src/styles.css`. Envelope colours are at the top of `src/app/envelope/envelope.css`.
-- **Names font**: Pinyon Script (`--font-script`), self-hosted from `@fontsource/pinyon-script`. To try another, `npm i @fontsource/<name>`, swap the `@import` at the top of `styles.css` and change `--font-script`. Good alternatives with full Czech support: Mea Culpa (more flourished), Petit Formal Script (easier to read), Imperial Script.
+- **Names font**: Parisienne (`--font-script`), self-hosted from `@fontsource/parisienne`. To try another, `npm i @fontsource/<name>`, swap the `@import` at the top of `styles.css` and change `--font-script`. Good alternatives with full Czech support: Pinyon Script or Mea Culpa (more flourished), Petit Formal Script (easier to read), Imperial Script.
 
 ## Personal links
 
