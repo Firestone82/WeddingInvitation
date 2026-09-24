@@ -94,6 +94,7 @@ export class Envelope {
   // tilt state, eased every frame towards the target
   private tilt = { rx: 0, ry: 0, lx: 30, ly: 20 };
   private target = { rx: 0, ry: 0, lx: 30, ly: 20 };
+  private readonly written = new Map<string, string>();
 
   constructor() {
     inject(DestroyRef).onDestroy(() => {
@@ -178,13 +179,21 @@ export class Envelope {
 
   private applyTilt(): void {
     const t = this.tilt;
-    const el = this.tiltEl().nativeElement.style;
-    el.setProperty('--rx', `${t.rx.toFixed(2)}deg`);
-    el.setProperty('--ry', `${t.ry.toFixed(2)}deg`);
-    el.setProperty('--lx', `${t.lx.toFixed(1)}%`);
-    el.setProperty('--ly', `${t.ly.toFixed(1)}%`);
-    this.host.style.setProperty('--px', `${(-t.ry * 1.4).toFixed(1)}px`);
-    this.host.style.setProperty('--py', `${(t.rx * 1.4).toFixed(1)}px`);
+    const tilt = this.tiltEl().nativeElement.style;
+    this.setVar(tilt, '--rx', `${t.rx.toFixed(2)}deg`);
+    this.setVar(tilt, '--ry', `${t.ry.toFixed(2)}deg`);
+    this.setVar(tilt, '--lx', `${t.lx.toFixed(1)}%`);
+    this.setVar(tilt, '--ly', `${t.ly.toFixed(1)}%`);
+    this.setVar(this.host.style, '--px', `${(-t.ry * 1.4).toFixed(1)}px`);
+    this.setVar(this.host.style, '--py', `${(t.rx * 1.4).toFixed(1)}px`);
+  }
+
+  /** These inherit into the whole scene, so only touch them when the value really changes. */
+  private setVar(style: CSSStyleDeclaration, name: string, value: string): void {
+    const key = style === this.host.style ? `host${name}` : name;
+    if (this.written.get(key) === value) return;
+    this.written.set(key, value);
+    style.setProperty(name, value);
   }
 
   /**
@@ -193,13 +202,11 @@ export class Envelope {
    * instead of freezing askew (or snapping) while it opens.
    */
   private takeOverSway(): void {
-    const cs = getComputedStyle(this.tiltEl().nativeElement);
-    const read = (name: string, fallback: number) => {
-      const v = parseFloat(cs.getPropertyValue(name));
-      return Number.isFinite(v) ? v : fallback;
-    };
-    const t = this.tilt;
-    this.tilt = { rx: read('--rx', t.rx), ry: read('--ry', t.ry), lx: read('--lx', t.lx), ly: read('--ly', t.ly) };
+    // the sway is rotateX(a) rotateY(b); read both angles back out of the matrix
+    const m = new DOMMatrixReadOnly(getComputedStyle(this.tiltEl().nativeElement).transform);
+    const deg = 180 / Math.PI;
+    this.tilt.rx = Math.atan2(m.m23, m.m22) * deg;
+    this.tilt.ry = Math.asin(Math.max(-1, Math.min(1, m.m31))) * deg;
     this.applyTilt();
   }
 

@@ -36,6 +36,22 @@ const GOLD: [number, number, number] = [216, 191, 138];
 const WAX: [number, number, number] = [110, 28, 41];
 
 const rand = (a: number, b: number) => a + Math.random() * (b - a);
+
+/** The soft glow of a mote, drawn once; building a gradient per mote per frame is slow on phones. */
+function moteSprite(): HTMLCanvasElement {
+  const size = 64;
+  const c = document.createElement('canvas');
+  c.width = c.height = size;
+  const ctx = c.getContext('2d')!;
+  const [r, g, b] = GOLD;
+  const glow = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+  glow.addColorStop(0, `rgba(${r - 15},${g - 20},${b - 30},0.85)`);
+  glow.addColorStop(0.28, `rgba(${r},${g},${b},0.35)`);
+  glow.addColorStop(1, `rgba(${r},${g},${b},0)`);
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, size, size);
+  return c;
+}
 const pick = <T>(list: T[]) => list[Math.floor(Math.random() * list.length)];
 
 /**
@@ -44,6 +60,7 @@ const pick = <T>(list: T[]) => list[Math.floor(Math.random() * list.length)];
  */
 export class ParticleField {
   private readonly ctx: CanvasRenderingContext2D;
+  private readonly moteGlow = moteSprite();
   private particles: Particle[] = [];
   private ambient = false;
   private raf = 0;
@@ -179,7 +196,8 @@ export class ParticleField {
   }
 
   private resize(): void {
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    // soft, moving specks don't need full retina resolution, and the whole canvas is re-uploaded every frame
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
     this.w = window.innerWidth;
     this.h = window.innerHeight;
     this.canvas.width = Math.round(this.w * dpr);
@@ -260,16 +278,10 @@ export class ParticleField {
       switch (p.kind) {
         case 'mote': {
           const twinkle = 0.45 + 0.4 * Math.sin(p.age * 0.0017 + p.seed);
-          const a = alpha * twinkle;
           const radius = p.size * 3.4;
-          const glow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, radius);
-          glow.addColorStop(0, `rgba(${r - 15},${g - 20},${b - 30},${a * 0.85})`);
-          glow.addColorStop(0.28, `rgba(${r},${g},${b},${a * 0.35})`);
-          glow.addColorStop(1, `rgba(${r},${g},${b},0)`);
-          ctx.fillStyle = glow;
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
-          ctx.fill();
+          ctx.globalAlpha = Math.max(0, alpha * twinkle);
+          ctx.drawImage(this.moteGlow, p.x - radius, p.y - radius, radius * 2, radius * 2);
+          ctx.globalAlpha = 1;
           break;
         }
 

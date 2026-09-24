@@ -13,6 +13,7 @@
 :host {
   --liner: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 22 22'%3E%3Cpath d='M0 0L22 22M22 0L0 22' stroke='%23b08d57' stroke-opacity='.5' stroke-width='.6' fill='none'/%3E%3Cg fill='%23b08d57'%3E%3Ccircle cx='11' cy='11' r='1.4'/%3E%3Ccircle cx='0' cy='0' r='1.4'/%3E%3Ccircle cx='22' cy='0' r='1.4'/%3E%3Ccircle cx='0' cy='22' r='1.4'/%3E%3Ccircle cx='22' cy='22' r='1.4'/%3E%3C/g%3E%3Cg fill='%23a8666b' fill-opacity='.55'%3E%3Cellipse cx='11' cy='2.2' rx='.9' ry='1.6'/%3E%3Cellipse cx='11' cy='19.8' rx='.9' ry='1.6'/%3E%3Cellipse cx='2.2' cy='11' rx='1.6' ry='.9'/%3E%3Cellipse cx='19.8' cy='11' rx='1.6' ry='.9'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 22px 22px, #ead8d1;
   --noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' stitchTiles='stitch' result='t'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.45 0 0 0 -0.2' result='d'/%3E%3CfeColorMatrix in='t' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 -0.3 0 0 0 0.14'/%3E%3CfeMerge%3E%3CfeMergeNode in='d'/%3E%3CfeMergeNode/%3E%3C/feMerge%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   --ease-flap: cubic-bezier(0.65, 0, 0.35, 1);
   --ease-grow: cubic-bezier(0.76, 0, 0.24, 1);
 
@@ -42,7 +43,6 @@
   z-index: 2;
   pointer-events: none;
   color: #22342b;
-  mix-blend-mode: multiply;
   opacity: 0;
   translate: var(--px, 0) var(--py, 0);
 }
@@ -144,16 +144,30 @@
   scale: 0.975;
 }
 
-/* phones without a gyroscope get a slow, lifelike sway instead */
+/*
+ * Phones without a gyroscope get a slow, lifelike sway instead. It animates
+ * transform/translate directly (not the --rx/--lx properties), so it runs on
+ * the compositor and the envelope is not redrawn every frame.
+ */
 @media (hover: none) {
   :host(:not(.has-gyro)) .tilt {
     animation: sway 7s ease-in-out infinite;
   }
+
+  :host(:not(.has-gyro)) .sheen::before {
+    animation: sheen-sway 7s ease-in-out infinite;
+  }
 }
 
 @keyframes sway {
-  0%, 100% { --rx: 3deg; --ry: -5deg; --lx: 22%; --ly: 14%; }
-  50% { --rx: -2deg; --ry: 5deg; --lx: 72%; --ly: 38%; }
+  0%, 100% { transform: rotateX(3deg) rotateY(-5deg); }
+  50% { transform: rotateX(-2deg) rotateY(5deg); }
+}
+
+/* light at 22% 14% → 72% 38%, see .sheen::before */
+@keyframes sheen-sway {
+  0%, 100% { translate: -14% -18%; }
+  50% { translate: 11% -6%; }
 }
 
 :host(.is-opening) .float {
@@ -174,8 +188,7 @@
   height: 46px;
   margin-top: 6px;
   translate: calc(-50% + var(--px, 0px) * 1.5) -50%;
-  background: radial-gradient(closest-side, rgb(22 38 32 / 0.42), rgb(22 38 32 / 0.16) 55%, transparent);
-  filter: blur(3px);
+  background: radial-gradient(closest-side, rgb(22 38 32 / 0.4), rgb(22 38 32 / 0.16) 50%, rgb(22 38 32 / 0.05) 80%, transparent);
   opacity: 0;
   pointer-events: none;
 }
@@ -265,15 +278,28 @@
   transition: opacity 400ms ease;
 }
 
+/*
+ * Grain and sheen use plain alpha, not blend modes: a blended layer on top
+ * makes the browser re-composite the whole envelope every frame.
+ */
 .grain {
-  background: var(--noise);
-  mix-blend-mode: overlay;
-  opacity: 0.4;
+  background: var(--grain);
 }
 
+/* over the paper and flap, under the wax seal */
 .sheen {
-  background: radial-gradient(circle at var(--lx, 30%) var(--ly, 20%), rgb(255 255 255 / 0.32), rgb(255 255 255 / 0) 58%);
-  mix-blend-mode: soft-light;
+  z-index: 6;
+  overflow: hidden;
+}
+
+/* the light is a fixed spot on a layer twice the envelope's size, slid to (--lx, --ly) */
+.sheen::before {
+  content: '';
+  position: absolute;
+  inset: -50%;
+  /* a pale tint of the paper rather than white, so it lifts the green the way soft-light did */
+  background: radial-gradient(circle 60cqi at 50% 50%, rgb(140 215 185 / 0.3), rgb(140 215 185 / 0));
+  translate: calc((var(--lx, 30%) - 50%) / 2) calc((var(--ly, 20%) - 50%) / 2);
 }
 
 :host(.is-opening) .grain,
@@ -490,10 +516,23 @@
   transition: scale 250ms ease;
 }
 
+/* gold halo behind the wax; pulsing its opacity stays on the compositor, unlike a filter */
+.seal::before {
+  content: '';
+  position: absolute;
+  inset: -16%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(216 191 138 / 0.6) 55%, rgb(216 191 138 / 0));
+  opacity: 0;
+  pointer-events: none;
+}
+
 :host(.is-arriving) .seal {
-  animation:
-    seal-stamp 520ms cubic-bezier(0.3, 0.6, 0.3, 1) 900ms backwards,
-    seal-glow 2.8s ease-in-out 2000ms infinite;
+  animation: seal-stamp 520ms cubic-bezier(0.3, 0.6, 0.3, 1) 900ms backwards;
+}
+
+:host(.is-arriving) .seal::before {
+  animation: seal-glow 2.8s ease-in-out 2000ms infinite;
 }
 
 @keyframes seal-stamp {
@@ -504,8 +543,8 @@
 }
 
 @keyframes seal-glow {
-  0%, 100% { filter: drop-shadow(0 0 0 rgb(216 191 138 / 0)); }
-  50% { filter: drop-shadow(0 0 10px rgb(216 191 138 / 0.6)); }
+  0%, 100% { opacity: 0; }
+  50% { opacity: 1; }
 }
 
 @media (hover: hover) {
@@ -585,7 +624,8 @@
   animation: seal-press 240ms ease-out forwards;
 }
 
-:host(.is-opening) .seal-ring {
+:host(.is-opening) .seal-ring,
+:host(.is-opening) .seal::before {
   animation: none;
   opacity: 0;
 }
@@ -825,9 +865,11 @@
   .tilt,
   .ground,
   .seal,
+  .seal::before,
   .seal-ring,
   .recipient,
   .leaf,
+  .sheen::before,
   .hint > span {
     animation: none !important;
   }
