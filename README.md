@@ -62,6 +62,8 @@ After the page appears, a cue at the bottom of the screen tells guests there is 
 
 The build is a plain static site: Netlify, Vercel, Cloudflare Pages, GitHub Pages or any web host. If it doesn't live at the domain root, build with `npx ng build --base-href /your-path/`.
 
+**GitHub Pages** is set up in `.github/workflows/deploy.yml`. Every push to `master` builds the site and publishes it; pull requests are only built, to check they compile. One-time setup: in the repository go to **Settings → Pages** and set **Source** to **GitHub Actions**. The site then appears at `https://<user>.github.io/<repo>/`. The base href is set automatically, including for a custom domain. You can also start a deploy by hand from the **Actions** tab (**Deploy to GitHub Pages → Run workflow**).
+
 ## Where things are
 
 Every component has its own folder with a `.ts`, `.html` and `.css` file.
