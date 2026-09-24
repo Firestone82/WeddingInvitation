@@ -1,0 +1,59 @@
+@if (showIntro()) {
+  <app-envelope
+    [recipient]="recipient"
+    [initials]="c.couple.initials"
+    [names]="names"
+    [dateLine]="shortDate"
+    [hintTouch]="c.envelope.hintTouch"
+    [hintMouse]="c.envelope.hintMouse"
+    [openLabel]="c.envelope.openLabel"
+    (opening)="onOpening()"
+    (revealed)="onRevealed()"
+    (finished)="showIntro.set(false)"
+  />
+}
+
+<div class="scroll-progress" aria-hidden="true"></div>
+
+<main [inert]="!opened()">
+  <app-hero [ready]="opened()" />
+  <app-countdown />
+  <app-schedule />
+  <app-venue />
+  <app-dress-code />
+  <app-menu />
+  <app-details />
+  <app-rsvp />
+</main>
+
+<app-scroll-cue [active]="opened()" [label]="c.hero.scrollHint" />
+
+<footer class="relative overflow-hidden bg-bottle px-6 pt-20 pb-[calc(4rem+env(safe-area-inset-bottom))] text-center text-paper" [inert]="!opened()">
+  <app-sprig class="pointer-events-none absolute -top-2 -right-8 w-44 -scale-x-100 text-gilt/50 sm:right-8" [drawn]="opened()" />
+  <app-seal class="mx-auto size-16" [initials]="c.couple.initials" />
+  <p class="mx-auto mt-8 max-w-xs text-paper/80">{{ c.footer.line }}</p>
+  <p class="mt-3 font-script text-[clamp(2.75rem,11vw,4rem)] leading-tight">
+    {{ c.couple.first }} <span class="script-amp">&amp;</span> {{ c.couple.second }}
+  </p>
+</footer>
+
+@if (c.music && opened()) {
+  <button
+    type="button"
+    class="fixed right-4 bottom-[calc(1rem+env(safe-area-inset-bottom))] z-40 grid size-12 place-items-center rounded-full bg-bottle text-gilt-light shadow-lg shadow-bottle/30 transition-transform hover:scale-105"
+    [attr.aria-label]="c.music.label"
+    [attr.aria-pressed]="playing()"
+    (click)="toggleMusic()"
+  >
+    <span class="flex h-4 items-end gap-[3px]" aria-hidden="true">
+      @for (bar of [0, 1, 2, 3]; track bar) {
+        <span
+          class="w-[3px] rounded-full bg-current"
+          [class.eq]="playing()"
+          [style.height.%]="playing() ? 100 : 30"
+          [style.animation-delay.ms]="bar * 140"
+        ></span>
+      }
+    </span>
+  </button>
+}

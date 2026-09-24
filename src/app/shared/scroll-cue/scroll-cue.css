@@ -1,0 +1,105 @@
+:host {
+  position: fixed;
+  inset: auto 0 0;
+  z-index: 30;
+  display: flex;
+  justify-content: center;
+  padding: 6.5rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
+  /* the page fades into the background here, which itself says "it continues" */
+  background: linear-gradient(
+    to top,
+    var(--color-mist) 0%,
+    var(--color-mist) 44%,
+    rgb(238 240 234 / 0.82) 62%,
+    rgb(238 240 234 / 0) 100%
+  );
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  translate: 0 14px;
+  transition:
+    opacity 600ms ease,
+    translate 700ms var(--ease-out-soft),
+    visibility 0s linear 700ms;
+}
+
+:host(.is-visible) {
+  opacity: 1;
+  visibility: visible;
+  translate: 0 0;
+  transition:
+    opacity 800ms ease,
+    translate 900ms var(--ease-out-soft),
+    visibility 0s;
+}
+
+.cue {
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7rem;
+  min-width: 44px;
+  padding: 0.5rem 1rem 0.25rem;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  color: rgb(30 42 37 / 0.75);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 200ms ease;
+}
+
+.cue:hover {
+  color: var(--color-ink);
+}
+
+/* hairline with an arrowhead, and a diamond bead sliding down it */
+.track {
+  position: relative;
+  width: 1px;
+  height: 3rem;
+  background: linear-gradient(to bottom, rgb(176 141 87 / 0.15), rgb(176 141 87 / 0.7));
+}
+
+.track::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 9px;
+  height: 9px;
+  border-right: 1px solid var(--color-gilt);
+  border-bottom: 1px solid var(--color-gilt);
+  translate: -50% 0;
+  rotate: 45deg;
+}
+
+.bead {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 7px;
+  height: 7px;
+  background: var(--color-gilt);
+  translate: -50% -50%;
+  rotate: 45deg;
+  animation: bead 2.4s cubic-bezier(0.55, 0, 0.35, 1) infinite;
+}
+
+@keyframes bead {
+  0% { top: 0; opacity: 0; }
+  18% { opacity: 1; }
+  72% { top: calc(100% - 6px); opacity: 1; }
+  100% { top: calc(100% - 6px); opacity: 0; }
+}
+
+.cue:hover .bead {
+  animation-duration: 1.4s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bead {
+    animation: none;
+    top: 55%;
+  }
+}

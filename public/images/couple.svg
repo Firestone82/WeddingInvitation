@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 800" width="600" height="800">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#c9d3c4"/>
+      <stop offset="0.55" stop-color="#e7d8cf"/>
+      <stop offset="1" stop-color="#d8bfae"/>
+    </linearGradient>
+    <radialGradient id="sun" cx="50%" cy="58%" r="45%">
+      <stop offset="0" stop-color="#fbf3e6" stop-opacity="0.95"/>
+      <stop offset="1" stop-color="#fbf3e6" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="600" height="800" fill="url(#sky)"/>
+  <rect width="600" height="800" fill="url(#sun)"/>
+  <path d="M0 610 C120 560 220 590 320 570 C430 548 520 575 600 555 L600 800 L0 800Z" fill="#9baa93" fill-opacity="0.55"/>
+  <path d="M0 660 C140 630 260 660 380 640 C480 624 540 640 600 632 L600 800 L0 800Z" fill="#6b7250" fill-opacity="0.45"/>
+  <g fill="none" stroke="#b08d57" stroke-width="5">
+    <circle cx="272" cy="400" r="54"/>
+    <circle cx="328" cy="400" r="54"/>
+  </g>
+  <text x="300" y="735" text-anchor="middle" font-family="Jost, sans-serif" font-size="22" fill="#1e2a25" fill-opacity="0.6">Replace with public/images/couple.jpg</text>
+</svg>

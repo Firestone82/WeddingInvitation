@@ -1,0 +1,238 @@
+/* Self-hosted fonts: no request to Google, full Latin Extended (č, ř, ž, ů…) */
+@import '@fontsource-variable/bodoni-moda/opsz.css';
+@import '@fontsource-variable/bodoni-moda/opsz-italic.css';
+@import '@fontsource-variable/jost/wght.css';
+@import '@fontsource/pinyon-script/index.css';
+@import 'tailwindcss';
+
+/* ---------- design tokens ---------- */
+
+@theme static {
+  --font-display: 'Bodoni Moda Variable', 'Bodoni 72', Didot, Georgia, serif;
+  --font-script: 'Pinyon Script', 'Snell Roundhand', 'Apple Chancery', cursive;
+  --font-sans: 'Jost Variable', 'Avenir Next', 'Segoe UI', system-ui, sans-serif;
+
+  --color-bottle: #23443a;
+  --color-bottle-deep: #1a352d;
+  --color-mist: #eef0ea;
+  --color-paper: #fbfaf6;
+  --color-gilt: #b08d57;
+  --color-gilt-light: #d8bf8a;
+  --color-gilt-deep: #7a5c30;
+  --color-oxblood: #7a2331;
+  --color-oxblood-deep: #5a1621;
+  --color-ink: #1e2a25;
+  --color-blush: #ead8d1;
+
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ---------- base ---------- */
+
+@layer base {
+  :root {
+    interpolate-size: allow-keywords;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  html.intro-open {
+    overflow: hidden;
+  }
+
+  body {
+    min-height: 100dvh;
+    background: var(--color-mist);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 1.0625rem;
+    line-height: 1.65;
+    font-optical-sizing: auto;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* fine paper grain over everything */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    pointer-events: none;
+    opacity: 0.35;
+    mix-blend-mode: multiply;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .42 0 0 0 0 .36 0 0 0 .22 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    line-height: 1.1;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-gilt);
+    outline-offset: 3px;
+  }
+
+  ::selection {
+    background: var(--color-gilt-light);
+    color: var(--color-ink);
+  }
+}
+
+/* ---------- shared pieces ---------- */
+
+@layer components {
+  .section-title {
+    font-size: clamp(2.4rem, 8vw, 4rem);
+    letter-spacing: -0.01em;
+  }
+
+  .num {
+    font-variant-numeric: lining-nums tabular-nums;
+  }
+
+  /* Pinyon's own "&" is an old copperplate form few people recognise; borrow Bodoni's */
+  .script-amp {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 0.72em;
+  }
+
+  /* thin gilt hairline scroll indicator, CSS-only where supported */
+  .scroll-progress {
+    display: none;
+  }
+
+  @supports (animation-timeline: scroll()) {
+    .scroll-progress {
+      display: block;
+      position: fixed;
+      inset: 0 0 auto;
+      z-index: 40;
+      height: 2px;
+      background: var(--color-gilt);
+      transform-origin: 0 50%;
+      animation: grow-x linear both;
+      animation-timeline: scroll(root);
+    }
+  }
+
+  @keyframes grow-x {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+  }
+
+  /* smooth <details> where the browser supports ::details-content */
+  details::details-content {
+    block-size: 0;
+    overflow: clip;
+    transition: block-size 450ms var(--ease-out-soft), content-visibility 450ms allow-discrete;
+  }
+
+  details[open]::details-content {
+    block-size: auto;
+  }
+}
+
+/* ---------- scroll reveals (see RevealDirective) ---------- */
+
+[data-reveal] {
+  transition:
+    opacity 900ms var(--ease-out-soft) var(--reveal-delay, 0ms),
+    transform 1000ms var(--ease-out-soft) var(--reveal-delay, 0ms),
+    filter 900ms var(--ease-out-soft) var(--reveal-delay, 0ms),
+    clip-path 1300ms var(--ease-out-soft) var(--reveal-delay, 0ms);
+}
+
+/* gentle rise for body copy */
+[data-reveal='rise']:not(.is-revealed) {
+  opacity: 0;
+  transform: translateY(14px);
+}
+
+/* headings come into focus like ink settling into paper */
+[data-reveal='ink']:not(.is-revealed) {
+  opacity: 0;
+  filter: blur(8px);
+}
+
+/* printed menu card unfolding from its top crease */
+[data-reveal='unfold'] {
+  transform-origin: 50% 0;
+}
+[data-reveal='unfold']:not(.is-revealed) {
+  opacity: 0;
+  transform: perspective(1400px) rotateX(-75deg);
+}
+
+/* arch windows (photo, map) open from the bottom up */
+[data-reveal='arch'] {
+  clip-path: inset(0 round 999px 999px 0 0);
+}
+[data-reveal='arch']:not(.is-revealed) {
+  clip-path: inset(100% 0 0 round 999px 999px 0 0);
+}
+
+/* timeline stops slide in from the line */
+[data-reveal='side']:not(.is-revealed) {
+  opacity: 0;
+  transform: translateX(-16px);
+}
+
+/* fabric swatches drop onto the table */
+[data-reveal='drop']:not(.is-revealed) {
+  opacity: 0;
+  transform: translateY(-36px) rotate(-10deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  [data-reveal] {
+    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+
+  [data-reveal='arch'] {
+    clip-path: inset(0 round 999px 999px 0 0) !important;
+  }
+
+  .scroll-progress {
+    display: none !important;
+  }
+}
+
+/* animatable custom properties for the envelope's tilt and sheen */
+@property --rx {
+  syntax: '<angle>';
+  inherits: true;
+  initial-value: 0deg;
+}
+
+@property --ry {
+  syntax: '<angle>';
+  inherits: true;
+  initial-value: 0deg;
+}
+
+@property --lx {
+  syntax: '<percentage>';
+  inherits: true;
+  initial-value: 30%;
+}
+
+@property --ly {
+  syntax: '<percentage>';
+  inherits: true;
+  initial-value: 20%;
+}

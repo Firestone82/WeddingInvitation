@@ -1,0 +1,22 @@
+<section class="mx-auto max-w-3xl px-6 py-16 text-center sm:py-24" aria-labelledby="countdown-title">
+  <h2 id="countdown-title" appReveal="ink" class="font-display text-[clamp(1.6rem,5vw,2.2rem)] italic text-ink/85">
+    {{ c.countdown.heading }}
+  </h2>
+
+  @if (left()) {
+    <dl appReveal="rise" [revealDelay]="150" class="mt-8 grid grid-cols-4 divide-x divide-gilt/40">
+      @for (u of units(); track u.key) {
+        <div class="flex flex-col-reverse items-center gap-1 px-1">
+          <dt class="text-[0.8rem] text-ink/65 sm:text-sm">{{ u.label }}</dt>
+          <dd class="num overflow-hidden font-display text-[clamp(2.2rem,10vw,4.25rem)] leading-none">
+            @for (v of [u.value]; track v) {
+              <span class="tick inline-block">{{ v }}</span>
+            }
+          </dd>
+        </div>
+      }
+    </dl>
+  } @else {
+    <p appReveal="rise" class="mt-6 font-display text-3xl">{{ c.countdown.done }}</p>
+  }
+</section>

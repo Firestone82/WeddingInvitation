@@ -1,0 +1,51 @@
+.timeline {
+  --line-x: calc(4.25rem + 2.25rem / 2);
+}
+@media (min-width: 640px) {
+  .timeline { --line-x: calc(6rem + 3rem / 2); }
+}
+
+/* track + drawn portion that follows the scroll */
+.timeline::before,
+.timeline::after {
+  content: '';
+  position: absolute;
+  top: 0.6rem;
+  bottom: 0.6rem;
+  left: var(--line-x);
+  width: 1px;
+  translate: -50% 0;
+}
+.timeline::before {
+  background: color-mix(in oklab, var(--color-gilt) 25%, transparent);
+}
+.timeline::after {
+  background: var(--color-gilt);
+  transform-origin: 50% 0;
+  transform: scaleY(var(--progress, 0));
+}
+
+.dot {
+  position: absolute;
+  z-index: 1;
+  top: 0.55rem;
+  left: var(--line-x);
+  width: 0.7rem;
+  height: 0.7rem;
+  translate: -50% 0;
+  rotate: 45deg;
+  border: 1px solid var(--color-gilt);
+  background: var(--color-mist);
+  transition: opacity 500ms ease, background-color 600ms ease 300ms, transform 700ms var(--ease-out-soft);
+}
+.dot.is-revealed {
+  background: var(--color-gilt);
+}
+.dot:not(.is-revealed) {
+  transform: scale(0.2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .timeline::after { transform: none; }
+  .dot { background: var(--color-gilt); }
+}

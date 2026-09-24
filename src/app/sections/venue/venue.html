@@ -1,0 +1,47 @@
+<section class="bg-paper" aria-labelledby="venue-title">
+  <div class="mx-auto grid max-w-6xl gap-14 px-6 py-20 sm:py-28 lg:grid-cols-2 lg:items-center lg:gap-20">
+    <div class="text-center lg:text-left">
+      <h2 id="venue-title" appReveal="ink" class="section-title">{{ v.heading }}</h2>
+      <p appReveal="rise" [revealDelay]="100" class="mt-8 font-display text-[clamp(1.75rem,6vw,2.5rem)] italic leading-tight">
+        {{ v.name }}
+      </p>
+      <address appReveal="rise" [revealDelay]="180" class="mt-2 not-italic text-ink/75">{{ v.address }}</address>
+
+      <ul appReveal="rise" [revealDelay]="260" class="mx-auto mt-8 max-w-md space-y-3 text-left lg:mx-0">
+        @for (note of v.notes; track note) {
+          <li class="flex gap-3">
+            <span class="mt-[0.7em] size-1.5 shrink-0 rotate-45 bg-gilt" aria-hidden="true"></span>
+            <span>{{ note }}</span>
+          </li>
+        }
+      </ul>
+
+      <div appReveal="rise" [revealDelay]="340" class="mt-9 flex flex-wrap justify-center gap-3 lg:justify-start">
+        @for (link of links; track link.url; let first = $first) {
+          <a
+            [href]="link.url"
+            target="_blank"
+            rel="noopener"
+            class="inline-flex min-h-11 items-center rounded-full px-5 transition-colors"
+            [class]="first
+              ? 'bg-bottle text-paper hover:bg-bottle-deep'
+              : 'border border-ink/25 hover:border-bottle hover:bg-bottle hover:text-paper'"
+          >{{ link.label }}</a>
+        }
+      </div>
+    </div>
+
+    <div class="relative mx-auto w-full max-w-md lg:max-w-none">
+      <span class="absolute -inset-2.5 rounded-t-full border border-gilt/60" aria-hidden="true"></span>
+      <div appReveal="arch" class="map aspect-[4/5] overflow-hidden rounded-t-full bg-mist sm:aspect-[5/5]">
+        <iframe
+          class="h-full w-full border-0"
+          [src]="mapUrl"
+          [title]="v.mapTitle"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+        ></iframe>
+      </div>
+    </div>
+  </div>
+</section>

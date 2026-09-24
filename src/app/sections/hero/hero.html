@@ -1,0 +1,57 @@
+<section class="hero mx-auto max-w-6xl px-6 pt-14 pb-16 sm:pt-20 lg:grid lg:min-h-dvh lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:items-center lg:gap-20 lg:py-20">
+  <!-- words -->
+  <div class="text-center lg:order-2 lg:text-left">
+    <p class="anim lead mx-auto max-w-[22rem] text-[1.05rem] leading-relaxed text-ink/75 lg:mx-0" style="--d: 150ms">
+      {{ c.hero.lead }}
+    </p>
+
+    <h1 #title id="couple-names" tabindex="-1" class="names relative mx-auto mt-8 flex max-w-[21rem] flex-col outline-none lg:mx-0 lg:max-w-none">
+      <span class="amp-bg" aria-hidden="true">&amp;</span>
+      <span class="anim name name-1" style="--d: 350ms">{{ c.couple.first }}</span>
+      <span class="sr-only">&amp;</span>
+      <span class="anim name name-2" style="--d: 650ms">{{ c.couple.second }}</span>
+    </h1>
+
+    <!-- desktop: date sits under the names -->
+    <div class="hidden lg:block">
+      <ng-container *ngTemplateOutlet="when" />
+    </div>
+  </div>
+
+  <!-- photo in an arch -->
+  <div class="photo-wrap relative mx-auto mt-12 w-[min(74vw,21rem)] lg:order-1 lg:mt-0 lg:w-full lg:max-w-[26rem]">
+    <span class="anim arch-outline" style="--d: 1100ms" aria-hidden="true"></span>
+    <img
+      class="anim photo aspect-[3/4] w-full rounded-t-full object-cover"
+      style="--d: 700ms"
+      [src]="c.couple.photo"
+      [alt]="c.couple.photoAlt"
+      width="600"
+      height="800"
+      fetchpriority="high"
+    />
+    <app-sprig
+      class="absolute -bottom-7 -left-9 w-32 text-gilt sm:w-40 lg:-left-14"
+      style="--delay: 1300ms"
+      [drawn]="ready()"
+    />
+  </div>
+
+  <!-- mobile: date sits under the photo -->
+  <div class="text-center lg:hidden">
+    <ng-container *ngTemplateOutlet="when" />
+  </div>
+</section>
+
+<ng-template #when>
+  <p class="anim mt-12 font-display text-[clamp(1.5rem,5.4vw,2rem)] leading-snug lg:mt-10" style="--d: 1000ms">
+    {{ date }}
+  </p>
+  <p class="anim num mt-1 text-lg text-ink/75" style="--d: 1100ms">{{ time }}, {{ c.venue.name }}</p>
+
+  <div class="anim mt-8 flex flex-wrap items-center justify-center gap-x-3 gap-y-3 lg:justify-start" style="--d: 1250ms">
+    <span class="w-full text-sm text-ink/65 lg:w-auto lg:pr-1">{{ c.hero.addToCalendar }}</span>
+    <a class="pill" [href]="googleUrl" target="_blank" rel="noopener">{{ c.hero.googleCalendar }}</a>
+    <button type="button" class="pill" (click)="saveIcs()">{{ c.hero.icsCalendar }}</button>
+  </div>
+</ng-template>

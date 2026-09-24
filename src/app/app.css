@@ -1,0 +1,14 @@
+/* music toggle: equaliser bars bounce while the song plays */
+.eq {
+  animation: eq 900ms ease-in-out infinite alternate;
+  transform-origin: bottom;
+}
+
+@keyframes eq {
+  0% { transform: scaleY(0.3); }
+  100% { transform: scaleY(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eq { animation: none; }
+}

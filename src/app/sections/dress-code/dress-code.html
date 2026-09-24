@@ -1,0 +1,39 @@
+<section class="mx-auto grid max-w-6xl gap-12 px-6 py-20 sm:py-28 lg:grid-cols-2 lg:items-center lg:gap-20" aria-labelledby="dress-title">
+  <div class="text-center lg:text-left">
+    <h2 id="dress-title" appReveal="ink" class="section-title">{{ d.heading }}</h2>
+    <p appReveal="rise" [revealDelay]="100" class="mt-8 font-display text-[clamp(1.75rem,6vw,2.5rem)] italic leading-tight">
+      {{ d.style }}
+    </p>
+    <p appReveal="rise" [revealDelay]="180" class="mx-auto mt-4 max-w-[34rem] leading-relaxed text-ink/80 lg:mx-0">
+      {{ d.description }}
+    </p>
+  </div>
+
+  <div class="flex flex-col items-center">
+    <!-- a swatch book that fans open -->
+    <div appReveal="rise" class="fan relative h-[13rem] w-full sm:h-[15rem] lg:h-[19rem]" aria-hidden="true">
+      @for (s of d.palette; track s.hex; let i = $index; let n = $count) {
+        <span
+          class="chip"
+          [style.--angle.deg]="(i - (n - 1) / 2) * 12"
+          [style.--i]="i"
+          [style.background-color]="s.hex"
+        ></span>
+      }
+      <span class="rivet"></span>
+    </div>
+
+    <ul appReveal="rise" [revealDelay]="500" class="mt-8 flex flex-wrap justify-center gap-x-5 gap-y-2 text-sm text-ink/75">
+      @for (s of d.palette; track s.hex) {
+        <li class="flex items-center gap-2">
+          <span class="size-3 rounded-full ring-1 ring-ink/15" [style.background-color]="s.hex"></span>
+          {{ s.name }}
+        </li>
+      }
+    </ul>
+
+    <p appReveal="rise" [revealDelay]="600" class="mt-8 text-center font-display text-lg italic text-oxblood">
+      {{ d.note }}
+    </p>
+  </div>
+</section>

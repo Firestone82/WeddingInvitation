@@ -1,0 +1,59 @@
+.list {
+  border-top: 1px solid color-mix(in oklab, var(--color-gilt) 40%, transparent);
+}
+
+details {
+  border-bottom: 1px solid color-mix(in oklab, var(--color-gilt) 40%, transparent);
+}
+
+summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.25rem 0;
+  list-style: none;
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  line-height: 1.35;
+}
+
+summary::-webkit-details-marker {
+  display: none;
+}
+
+/* plus that turns into a minus when open */
+.icon {
+  position: relative;
+  flex-shrink: 0;
+  width: 1rem;
+  height: 1rem;
+}
+
+.icon::before,
+.icon::after {
+  content: '';
+  position: absolute;
+  background: var(--color-gilt-deep);
+}
+
+.icon::before {
+  inset: 50% 0 auto;
+  height: 1px;
+}
+
+.icon::after {
+  inset: 0 auto 0 50%;
+  width: 1px;
+  transition: transform 300ms var(--ease-out-soft);
+}
+
+details[open] .icon::after {
+  transform: scaleY(0);
+}
+
+.answer {
+  padding: 0 2.5rem 1.5rem 0;
+  color: rgb(30 42 37 / 0.75);
+}

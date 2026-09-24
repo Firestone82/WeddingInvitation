@@ -1,0 +1,3 @@
+.map iframe {
+  filter: saturate(0.55) sepia(0.12) contrast(1.02);
+}

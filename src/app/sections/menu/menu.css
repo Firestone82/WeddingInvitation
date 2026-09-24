@@ -1,0 +1,5 @@
+.card {
+  box-shadow:
+    0 40px 60px -30px rgb(0 0 0 / 0.55),
+    0 2px 4px rgb(0 0 0 / 0.2);
+}

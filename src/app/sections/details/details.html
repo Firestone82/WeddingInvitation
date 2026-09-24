@@ -1,0 +1,15 @@
+<section class="mx-auto max-w-2xl px-6 py-20 sm:py-28" aria-labelledby="details-title">
+  <h2 id="details-title" appReveal="ink" class="section-title text-center">{{ d.heading }}</h2>
+
+  <div class="list mt-12">
+    @for (item of d.items; track item.question) {
+      <details appReveal="rise" [revealDelay]="$index * 80">
+        <summary>
+          {{ item.question }}
+          <span class="icon" aria-hidden="true"></span>
+        </summary>
+        <p class="answer">{{ item.answer }}</p>
+      </details>
+    }
+  </div>
+</section>

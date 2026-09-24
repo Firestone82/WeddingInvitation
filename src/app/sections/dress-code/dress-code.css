@@ -1,0 +1,52 @@
+.chip {
+  position: absolute;
+  left: 50%;
+  bottom: 0.75rem;
+  width: 4.25rem;
+  height: calc(100% - 1rem);
+  margin-left: -2.125rem;
+  border-radius: 0.5rem 0.5rem 1.5rem 1.5rem;
+  transform-origin: 50% calc(100% - 1.4rem);
+  background-image:
+    repeating-linear-gradient(0deg, rgb(255 255 255 / 0.06) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgb(0 0 0 / 0.05) 0 1px, transparent 1px 4px),
+    linear-gradient(180deg, rgb(255 255 255 / 0.18), transparent 40%);
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 0.25) inset,
+    0 10px 22px -12px rgb(30 42 37 / 0.55);
+  rotate: 0deg;
+  transition:
+    rotate 1200ms cubic-bezier(0.22, 1.2, 0.36, 1) calc(250ms + var(--i) * 70ms),
+    transform 350ms var(--ease-out-soft);
+}
+
+.is-revealed > .chip {
+  rotate: var(--angle);
+}
+
+.fan:hover > .chip:hover {
+  transform: translateY(-0.9rem);
+}
+
+.rivet {
+  position: absolute;
+  left: 50%;
+  bottom: 1.65rem;
+  width: 0.9rem;
+  height: 0.9rem;
+  translate: -50% 50%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #f0dfb5, var(--color-gilt) 55%, var(--color-gilt-deep));
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.35);
+}
+
+@media (min-width: 640px) {
+  .chip { width: 5rem; margin-left: -2.5rem; }
+}
+@media (min-width: 1024px) {
+  .chip { width: 6rem; margin-left: -3rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chip { rotate: var(--angle); transition: none; }
+}

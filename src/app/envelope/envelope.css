@@ -1,0 +1,822 @@
+/*
+ * Arrival (ms after fonts are ready)          Opening (ms after tap)
+ *   0     envelope drops in and lands            0     seal pressed, haptic tick
+ *   900   wax seal is stamped                    100   crack runs through the seal
+ *   1250  gold ring flashes, address is written  280   halves tumble off, crumbs + sparks (canvas)
+ *   1900  hint appears, seal pulses              480   flap swings open, shading follows the angle
+ *                                                1200  letter slides out and settles
+ *                                                1350  petals burst (canvas)
+ *                                                2500  card lifts and grows to fill the screen
+ *                                                3500  card dissolves into the page
+ */
+
+:host {
+  --liner: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 22 22'%3E%3Cpath d='M0 0L22 22M22 0L0 22' stroke='%23b08d57' stroke-opacity='.5' stroke-width='.6' fill='none'/%3E%3Cg fill='%23b08d57'%3E%3Ccircle cx='11' cy='11' r='1.4'/%3E%3Ccircle cx='0' cy='0' r='1.4'/%3E%3Ccircle cx='22' cy='0' r='1.4'/%3E%3Ccircle cx='0' cy='22' r='1.4'/%3E%3Ccircle cx='22' cy='22' r='1.4'/%3E%3C/g%3E%3Cg fill='%23a8666b' fill-opacity='.55'%3E%3Cellipse cx='11' cy='2.2' rx='.9' ry='1.6'/%3E%3Cellipse cx='11' cy='19.8' rx='.9' ry='1.6'/%3E%3Cellipse cx='2.2' cy='11' rx='1.6' ry='.9'/%3E%3Cellipse cx='19.8' cy='11' rx='1.6' ry='.9'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 22px 22px, #ead8d1;
+  --noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --ease-flap: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-grow: cubic-bezier(0.76, 0, 0.24, 1);
+
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: block;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+/* ---------- scene: light, leaf shadows ---------- */
+
+.light {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 120% 90% at 50% 45%, transparent 55%, rgb(30 42 37 / 0.14)),
+    radial-gradient(ellipse 60% 45% at 16% 6%, rgb(255 249 234 / 0.95), transparent 70%),
+    radial-gradient(ellipse 80% 60% at 50% 48%, #f7f8f3, transparent 70%),
+    linear-gradient(180deg, #eef0ea 0%, #dfe4da 100%);
+}
+
+.leaves {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  color: #22342b;
+  mix-blend-mode: multiply;
+  opacity: 0;
+  translate: var(--px, 0) var(--py, 0);
+}
+
+.leaf {
+  position: absolute;
+  opacity: 0.13;
+  will-change: transform;
+}
+
+.leaf-a {
+  left: -22%;
+  top: -10%;
+  width: max(150vw, 900px);
+  max-width: 1500px;
+  transform-origin: 0 0;
+  animation: sway-a 11s ease-in-out infinite alternate;
+}
+
+.leaf-b {
+  right: -30%;
+  bottom: -12%;
+  width: max(130vw, 800px);
+  max-width: 1300px;
+  opacity: 0.1;
+  transform-origin: 100% 100%;
+  animation: sway-b 13s ease-in-out infinite alternate;
+}
+
+@keyframes sway-a {
+  from { transform: rotate(-1.6deg) translate(0, 0); }
+  to { transform: rotate(1.8deg) translate(6px, 4px); }
+}
+
+@keyframes sway-b {
+  from { transform: rotate(1.4deg); }
+  to { transform: rotate(-1.8deg) translate(-8px, -3px); }
+}
+
+:host(.is-arriving) .leaves {
+  opacity: 1;
+  transition: opacity 1800ms ease 200ms;
+}
+
+/* ---------- stage ---------- */
+
+.stage {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3.25rem;
+  /* envelope width, capped by height: open, flap + letter need ~1.6× its height */
+  --env-w: min(86vw, 34rem, calc((100dvh - 9rem) * 0.8));
+  /* headroom for the open flap (58% of the envelope's height) */
+  padding: calc(var(--env-w) / 1.41 * 0.62 + 1rem) 1rem 2rem;
+}
+
+.scene {
+  position: relative;
+  perspective: 1400px;
+  visibility: hidden;
+}
+
+:host(.is-arriving) .scene {
+  visibility: visible;
+}
+
+:host(.is-arriving) .arrive {
+  animation: drop 1100ms cubic-bezier(0.2, 0.8, 0.25, 1) backwards;
+}
+
+@keyframes drop {
+  0% { transform: translateY(-65vh) rotate(-14deg) rotateX(40deg); opacity: 0; }
+  12% { opacity: 1; }
+  62% { transform: translateY(10px) rotate(1.4deg) rotateX(-6deg); }
+  80% { transform: translateY(-4px) rotate(-0.5deg) rotateX(2deg); }
+  100% { transform: none; }
+}
+
+.float {
+  animation: float 6s ease-in-out 1.2s infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.tilt {
+  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: scale 220ms ease;
+}
+
+:host(.is-pressed) .tilt {
+  scale: 0.975;
+}
+
+/* phones without a gyroscope get a slow, lifelike sway instead */
+@media (hover: none) {
+  :host(:not(.has-gyro)) .tilt {
+    animation: sway 7s ease-in-out infinite;
+  }
+}
+
+@keyframes sway {
+  0%, 100% { --rx: 3deg; --ry: -5deg; --lx: 22%; --ly: 14%; }
+  50% { --rx: -2deg; --ry: 5deg; --lx: 72%; --ly: 38%; }
+}
+
+:host(.is-opening) .float,
+:host(.is-opening) .tilt {
+  animation-play-state: paused;
+}
+
+/* contact shadow on the table, breathing with the float */
+.ground {
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  width: 96%;
+  height: 46px;
+  margin-top: 6px;
+  translate: calc(-50% + var(--px, 0px) * 1.5) -50%;
+  background: radial-gradient(closest-side, rgb(22 38 32 / 0.42), rgb(22 38 32 / 0.16) 55%, transparent);
+  filter: blur(3px);
+  opacity: 0;
+  pointer-events: none;
+}
+
+:host(.is-arriving) .ground {
+  opacity: 1;
+  animation:
+    ground-in 1100ms cubic-bezier(0.2, 0.8, 0.25, 1) backwards,
+    ground-breathe 6s ease-in-out 1.2s infinite;
+}
+
+@keyframes ground-in {
+  0% { opacity: 0; transform: scale(0.3); }
+  62% { opacity: 1; transform: scale(1.05); }
+  100% { transform: none; }
+}
+
+@keyframes ground-breathe {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(0.92); opacity: 0.78; }
+}
+
+/* ---------- envelope ---------- */
+
+.envelope {
+  position: relative;
+  display: block;
+  width: var(--env-w);
+  aspect-ratio: 1.41; /* C5 */
+  container-type: inline-size;
+  perspective: 1100px;
+  cursor: pointer;
+  border-radius: 3px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.envelope:disabled {
+  cursor: default;
+}
+
+.envelope:focus-visible {
+  outline: 2px solid #b08d57;
+  outline-offset: 12px;
+}
+
+.env-back,
+.env-pocket,
+.letter,
+.recipient,
+.flap-wrap,
+.seal,
+.grain,
+.sheen {
+  position: absolute;
+}
+
+.env-back {
+  inset: 0;
+  z-index: 1;
+  border-radius: 3px;
+  background: #1a352d;
+  box-shadow: 0 2px 5px rgb(22 38 32 / 0.25);
+}
+
+.env-back::after {
+  content: '';
+  position: absolute;
+  inset: 4% 4% 42%;
+  background: var(--liner);
+}
+
+.env-pocket {
+  inset: 0;
+  z-index: 4;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.grain,
+.sheen {
+  inset: 0;
+  z-index: 8;
+  border-radius: 3px;
+  pointer-events: none;
+  transition: opacity 400ms ease;
+}
+
+.grain {
+  background: var(--noise);
+  mix-blend-mode: overlay;
+  opacity: 0.4;
+}
+
+.sheen {
+  background: radial-gradient(circle at var(--lx, 30%) var(--ly, 20%), rgb(255 255 255 / 0.32), rgb(255 255 255 / 0) 58%);
+  mix-blend-mode: soft-light;
+}
+
+:host(.is-opening) .grain,
+:host(.is-opening) .sheen {
+  opacity: 0;
+}
+
+/* ---------- handwritten address ---------- */
+
+.recipient {
+  z-index: 5;
+  left: 0;
+  right: 0;
+  bottom: 10%;
+  text-align: center;
+  font-family: var(--font-script);
+  font-size: 7cqi;
+  line-height: 1.2;
+  color: #d8bf8a;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(90deg, #000 42%, transparent 58%);
+  mask-image: linear-gradient(90deg, #000 42%, transparent 58%);
+  -webkit-mask-size: 250% 100%;
+  mask-size: 250% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: 0 0;
+  mask-position: 0 0;
+}
+
+:host(.is-arriving) .recipient {
+  animation: write 1500ms cubic-bezier(0.45, 0.05, 0.4, 1) 1250ms backwards;
+}
+
+@keyframes write {
+  from {
+    -webkit-mask-position: 100% 0;
+    mask-position: 100% 0;
+  }
+  to {
+    -webkit-mask-position: 0 0;
+    mask-position: 0 0;
+  }
+}
+
+/* ---------- flap ---------- */
+
+.flap-wrap {
+  inset: 0 0 auto;
+  z-index: 6;
+  height: 58%;
+  transform-origin: 50% 0;
+  filter: drop-shadow(0 3px 3px rgb(10 25 20 / 0.35));
+  transition:
+    transform 900ms var(--ease-flap) 480ms,
+    z-index 0s linear 930ms;
+}
+
+.flap {
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(0 0, 100% 0, 54% 95%, 50% 100%, 46% 95%);
+  background:
+    var(--noise),
+    linear-gradient(180deg, #2f5a4b 0%, #264c40 70%, #22463a 100%);
+  background-blend-mode: overlay, normal;
+}
+
+.flap-liner,
+.flap-shade {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+
+.flap-liner {
+  background: var(--liner);
+  transition: opacity 0s linear 930ms;
+}
+
+.flap-shade {
+  background: #0c1d16;
+}
+
+:host(.is-opening) .flap-wrap {
+  z-index: 2;
+  transform: rotateX(180deg);
+}
+
+:host(.is-opening) .flap-liner {
+  opacity: 1;
+}
+
+/* darkest when the flap stands on its edge, lit again as it lies back */
+:host(.is-opening) .flap-shade {
+  animation: flap-shade 900ms linear 480ms;
+}
+
+@keyframes flap-shade {
+  0% { opacity: 0; }
+  50% { opacity: 0.6; }
+  100% { opacity: 0; }
+}
+
+/* ---------- letter ---------- */
+
+.letter {
+  z-index: 3;
+  left: 5.5%;
+  right: 5.5%;
+  top: 5%;
+  height: 88%;
+  padding: 3.2cqi;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #fdfcf9, #f5f3ec);
+  box-shadow: 0 1px 3px rgb(30 42 37 / 0.2);
+}
+
+.letter-inner {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 6cqi;
+  gap: 2cqi;
+  border: 1px solid rgb(176 141 87 / 0.55);
+  color: #1e2a25;
+}
+
+.letter-names,
+.sheet-names {
+  font-family: var(--font-script);
+  line-height: 1.15;
+  white-space: nowrap;
+}
+
+.letter-names {
+  font-size: 9cqi;
+}
+
+.letter-rule,
+.sheet-rule {
+  height: 1px;
+  background: #b08d57;
+}
+
+.letter-rule {
+  width: 10cqi;
+}
+
+.letter-date,
+.sheet-date {
+  font-family: var(--font-sans);
+  letter-spacing: 0.04em;
+  color: rgb(30 42 37 / 0.75);
+}
+
+.letter-date {
+  font-size: 3.2cqi;
+}
+
+:host(.is-opening) .letter {
+  animation: letter-rise 1150ms cubic-bezier(0.3, 0.7, 0.2, 1) 1200ms both;
+}
+
+@keyframes letter-rise {
+  0% { transform: translateY(0) rotate(0); }
+  62% { transform: translateY(-64%) rotate(-1.4deg); }
+  100% { transform: translateY(-58%) rotate(0deg); }
+}
+
+:host(.is-lifting) .letter {
+  visibility: hidden;
+}
+
+/* ---------- seal ---------- */
+
+.seal {
+  z-index: 7;
+  left: 50%;
+  top: 58%;
+  width: 23cqi;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  transition: scale 250ms ease;
+}
+
+:host(.is-arriving) .seal {
+  animation:
+    seal-stamp 520ms cubic-bezier(0.3, 0.6, 0.3, 1) 900ms backwards,
+    seal-glow 2.8s ease-in-out 2000ms infinite;
+}
+
+@keyframes seal-stamp {
+  0% { opacity: 0; scale: 1.8; }
+  55% { opacity: 1; scale: 0.9; }
+  78% { scale: 1.04; }
+  100% { scale: 1; }
+}
+
+@keyframes seal-glow {
+  0%, 100% { filter: drop-shadow(0 0 0 rgb(216 191 138 / 0)); }
+  50% { filter: drop-shadow(0 0 10px rgb(216 191 138 / 0.6)); }
+}
+
+@media (hover: hover) {
+  :host(.is-ready) .envelope:hover .seal {
+    scale: 1.06;
+  }
+}
+
+.seal-half {
+  position: absolute;
+  inset: 0;
+}
+
+.seal-half > app-seal {
+  width: 100%;
+  height: 100%;
+}
+
+.seal-left {
+  clip-path: polygon(-10% -10%, 54% -10%, 49% 18%, 56% 34%, 47% 52%, 55% 70%, 48% 86%, 52% 110%, -10% 110%);
+}
+
+.seal-right {
+  clip-path: polygon(54% -10%, 110% -10%, 110% 110%, 52% 110%, 48% 86%, 55% 70%, 47% 52%, 56% 34%, 49% 18%);
+}
+
+.seal-ring {
+  position: absolute;
+  inset: 3%;
+  border: 1.5px solid rgb(216 191 138 / 0.9);
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+}
+
+:host(.is-arriving) .seal-ring {
+  animation: ring-flash 650ms ease-out 1230ms backwards;
+}
+
+:host(.is-ready) .seal-ring {
+  animation: ring-pulse 2.6s ease-out 300ms infinite backwards;
+}
+
+@keyframes ring-flash {
+  0% { opacity: 0.95; transform: scale(0.85); }
+  100% { opacity: 0; transform: scale(2.2); }
+}
+
+@keyframes ring-pulse {
+  0% { opacity: 0; transform: scale(0.95); }
+  12% { opacity: 0.7; }
+  100% { opacity: 0; transform: scale(1.9); }
+}
+
+.crack {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.crack path {
+  fill: none;
+  stroke: #26060c;
+  stroke-width: 2.6;
+  stroke-linejoin: miter;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+
+/* opening: press, crack, split */
+
+:host(.is-opening) .seal {
+  animation: seal-press 240ms ease-out forwards;
+}
+
+:host(.is-opening) .seal-ring {
+  animation: none;
+  opacity: 0;
+}
+
+:host(.is-opening) .crack {
+  animation: crack-show 400ms linear both;
+}
+
+:host(.is-opening) .crack path {
+  animation: crack-draw 170ms cubic-bezier(0.5, 0, 0.5, 1) 100ms both;
+}
+
+:host(.is-opening) .seal-left {
+  animation: crack-left 1000ms cubic-bezier(0.45, 0, 0.8, 0.4) 270ms forwards;
+}
+
+:host(.is-opening) .seal-right {
+  animation: crack-right 1000ms cubic-bezier(0.45, 0, 0.8, 0.4) 270ms forwards;
+}
+
+@keyframes seal-press {
+  0% { scale: 1; }
+  60% { scale: 0.9; }
+  100% { scale: 0.95; }
+}
+
+@keyframes crack-show {
+  0%, 70% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes crack-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes crack-left {
+  0% { transform: none; opacity: 1; }
+  14% { transform: translate(-7%, -3%) rotate(-9deg); }
+  100% { transform: translate(-85%, 200%) rotate(-70deg) rotateY(50deg); opacity: 0; }
+}
+
+@keyframes crack-right {
+  0% { transform: none; opacity: 1; }
+  14% { transform: translate(7%, -2%) rotate(8deg); }
+  100% { transform: translate(70%, 215%) rotate(58deg) rotateY(-45deg); opacity: 0; }
+}
+
+/* ---------- hint ---------- */
+
+.hint {
+  font-family: var(--font-sans);
+  font-size: clamp(0.95rem, 1.2vw, 1.05rem);
+  letter-spacing: 0.02em;
+  color: rgb(30 42 37 / 0.72);
+  opacity: 0;
+  translate: 0 8px;
+  transition:
+    opacity 700ms ease,
+    translate 700ms var(--ease-out-soft);
+}
+
+.hint > span {
+  animation: breathe 2.8s ease-in-out infinite;
+}
+
+.hint-mouse {
+  display: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .hint-touch { display: none; }
+  .hint-mouse { display: inline; }
+}
+
+@keyframes breathe {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+:host(.is-ready) .hint {
+  opacity: 1;
+  translate: 0 0;
+}
+
+:host(.is-opening) .hint {
+  opacity: 0;
+  transition-duration: 250ms;
+}
+
+/* ---------- lifting: envelope drops away, card grows into the page ---------- */
+
+:host(.is-lifting) .part {
+  translate: 0 42vh;
+  opacity: 0;
+  transition:
+    translate 800ms cubic-bezier(0.5, 0, 0.75, 0),
+    opacity 500ms ease 150ms,
+    transform 900ms var(--ease-flap) 480ms,
+    z-index 0s linear 930ms;
+}
+
+:host(.is-lifting) .ground,
+:host(.is-lifting) .leaves {
+  opacity: 0;
+  animation: none;
+  transition: opacity 500ms ease;
+}
+
+.sheet {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  visibility: hidden;
+  pointer-events: none;
+  background: linear-gradient(180deg, #fdfcf9, #f5f3ec);
+  clip-path: inset(var(--ct, 50%) var(--cr, 50%) var(--cb, 50%) var(--cl, 50%) round 2px);
+}
+
+.sheet-frame {
+  position: absolute;
+  top: var(--ft);
+  left: var(--fl);
+  width: var(--fw);
+  height: var(--fh);
+  border: 1px solid rgb(176 141 87 / 0.55);
+}
+
+.sheet-card {
+  position: absolute;
+  top: var(--ft);
+  left: var(--fl);
+  width: var(--fw);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: calc(var(--cq) * 6);
+  gap: calc(var(--cq) * 2);
+  color: #1e2a25;
+  transform-origin: 50% 20%;
+}
+
+.sheet-names {
+  font-size: calc(var(--cq) * 9);
+}
+
+.sheet-rule {
+  width: calc(var(--cq) * 10);
+}
+
+.sheet-date {
+  font-size: calc(var(--cq) * 3.2);
+}
+
+:host(.is-lifting) .sheet {
+  visibility: visible;
+}
+
+:host(.is-expanding) .sheet {
+  clip-path: inset(0 0 0 0 round 0px);
+  transition: clip-path 1000ms var(--ease-grow);
+}
+
+:host(.is-expanding) .sheet-frame {
+  top: 14px;
+  left: 14px;
+  width: calc(100% - 28px);
+  height: calc(100% - 28px);
+  transition:
+    top 1000ms var(--ease-grow),
+    left 1000ms var(--ease-grow),
+    width 1000ms var(--ease-grow),
+    height 1000ms var(--ease-grow);
+}
+
+/* rule and date fade; the names fly to the heading on the page and hand over */
+.sheet-rule,
+.sheet-date {
+  transition: opacity 400ms ease;
+}
+
+.sheet-names {
+  display: block;
+  transform-origin: 50% 50%;
+}
+
+:host(.is-expanding) .sheet-rule,
+:host(.is-expanding) .sheet-date {
+  opacity: 0;
+}
+
+:host(.is-expanding) .sheet-names {
+  translate: var(--mx, 0) var(--my, -4vh);
+  scale: var(--ms, 1.2);
+  opacity: 0;
+  filter: blur(4px);
+  transition:
+    translate 1150ms var(--ease-grow),
+    scale 1150ms var(--ease-grow),
+    opacity 500ms ease 850ms,
+    filter 500ms ease 850ms;
+}
+
+/* once the card covers the screen, the table underneath can go */
+:host(.is-expanding) .light,
+:host(.is-expanding) .stage {
+  opacity: 0;
+  transition: opacity 0s linear 1000ms;
+}
+
+:host(.is-leaving) {
+  pointer-events: none;
+}
+
+:host(.is-leaving) .sheet {
+  opacity: 0;
+  transition:
+    clip-path 1000ms var(--ease-grow),
+    opacity 1000ms ease 150ms;
+}
+
+/* ---------- particles ---------- */
+
+.fx {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* ---------- reduced motion: no choreography, a calm fade ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .arrive,
+  .float,
+  .tilt,
+  .ground,
+  .seal,
+  .seal-ring,
+  .recipient,
+  .leaf,
+  .hint > span {
+    animation: none !important;
+  }
+
+  .leaves {
+    opacity: 1;
+  }
+
+  .flap-wrap,
+  .flap-liner,
+  .letter {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .sheet,
+  .fx {
+    display: none;
+  }
+
+  :host(.is-leaving) {
+    opacity: 0;
+    transition: opacity 400ms ease;
+  }
+}

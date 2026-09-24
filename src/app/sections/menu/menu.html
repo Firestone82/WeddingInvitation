@@ -1,0 +1,24 @@
+<section class="bg-bottle px-5 py-20 text-paper sm:py-28" aria-labelledby="menu-title">
+  <div appReveal="unfold" class="card mx-auto max-w-[27rem] bg-paper p-2.5 text-ink">
+    <div class="border border-gilt/60 px-6 py-12 text-center sm:px-10">
+      <h2 id="menu-title" class="section-title italic">{{ m.heading }}</h2>
+
+      <ul class="mt-10">
+        @for (course of m.courses; track course.dish; let last = $last) {
+          <li appReveal="rise" [revealDelay]="400 + $index * 90">
+            <p class="text-sm text-gilt-deep">{{ course.course }}</p>
+            <p class="mt-1 font-display text-[1.45rem] leading-snug">{{ course.dish }}</p>
+            @if (course.description) {
+              <p class="mt-1 text-[0.95rem] text-ink/65">{{ course.description }}</p>
+            }
+            @if (!last) {
+              <span class="mx-auto my-6 block size-1.5 rotate-45 bg-gilt" aria-hidden="true"></span>
+            }
+          </li>
+        }
+      </ul>
+    </div>
+  </div>
+
+  <p appReveal="rise" class="mx-auto mt-10 max-w-sm text-center text-paper/80">{{ m.note }}</p>
+</section>

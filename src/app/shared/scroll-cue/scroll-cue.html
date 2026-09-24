@@ -1,0 +1,4 @@
+<button type="button" class="cue" [attr.tabindex]="visible() ? 0 : -1" (click)="go()">
+  <span class="label">{{ label() }}</span>
+  <span class="track" aria-hidden="true"><span class="bead"></span></span>
+</button>

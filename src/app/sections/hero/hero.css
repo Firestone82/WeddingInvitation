@@ -1,0 +1,128 @@
+@reference "../../../styles.css";
+
+.names {
+  font-family: var(--font-script);
+  font-size: clamp(3.8rem, 19.5vw, 7.75rem);
+  line-height: 1.05;
+  letter-spacing: 0;
+}
+
+.name-1 {
+  align-self: flex-start;
+}
+
+.name-2 {
+  align-self: flex-end;
+  margin-top: -0.05em;
+}
+
+@media (min-width: 1024px) {
+  .name-2 {
+    align-self: flex-start;
+    margin-left: 1.4em;
+  }
+}
+
+/* oversized hairline ampersand set behind the names */
+.amp-bg {
+  position: absolute;
+  z-index: -1;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 2.1em;
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--color-gilt);
+  opacity: 0;
+  scale: 1.12;
+  transition:
+    opacity 1600ms var(--ease-out-soft) 450ms,
+    scale 1800ms var(--ease-out-soft) 450ms;
+  pointer-events: none;
+  user-select: none;
+}
+
+@media (min-width: 1024px) {
+  .amp-bg {
+    left: 1.1em;
+    translate: -50% -50%;
+  }
+}
+
+:host(.is-ready) .amp-bg {
+  opacity: 0.75;
+  scale: 1;
+}
+
+.arch-outline {
+  position: absolute;
+  inset: -0.7rem;
+  border: 1px solid color-mix(in oklab, var(--color-gilt) 70%, transparent);
+  border-radius: 999px 999px 0 0;
+  pointer-events: none;
+}
+
+.pill {
+  @apply inline-flex min-h-11 items-center rounded-full border border-ink/25 px-5 text-[0.95rem] text-ink transition-colors hover:border-bottle hover:bg-bottle hover:text-paper;
+}
+
+/* ---------- entrance, after the envelope opens ---------- */
+
+.anim {
+  opacity: 0;
+  transition:
+    opacity 1000ms var(--ease-out-soft) var(--d, 0ms),
+    transform 1200ms var(--ease-out-soft) var(--d, 0ms),
+    filter 1100ms var(--ease-out-soft) var(--d, 0ms),
+    clip-path 1500ms var(--ease-out-soft) var(--d, 0ms);
+}
+
+.lead,
+p.anim,
+div.anim {
+  transform: translateY(10px);
+}
+
+.name {
+  filter: blur(10px);
+}
+
+.name-1 {
+  transform: translateX(-0.18em);
+}
+
+.name-2 {
+  transform: translateX(0.18em);
+}
+
+.photo {
+  opacity: 1;
+  clip-path: inset(100% 0 0 round 999px 999px 0 0);
+}
+
+:host(.is-ready) .anim {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+
+:host(.is-ready) .photo {
+  clip-path: inset(0 round 999px 999px 0 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim,
+  .amp-bg {
+    transition: opacity 400ms ease !important;
+    transform: none !important;
+    filter: none !important;
+    scale: 1 !important;
+  }
+
+  .photo {
+    clip-path: none !important;
+  }
+}

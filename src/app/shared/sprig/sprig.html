@@ -1,0 +1,7 @@
+<svg viewBox="0 0 170 120" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round">
+  <path class="stroke" pathLength="1" [attr.d]="stem" />
+  @for (d of leaves; track $index) {
+    <path class="stroke" pathLength="1" [attr.d]="d" [style.--i]="$index" />
+  }
+  <path class="stroke" pathLength="1" [attr.d]="bud" [style.--i]="leaves.length" />
+</svg>
