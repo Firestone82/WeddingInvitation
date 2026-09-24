@@ -78,8 +78,7 @@ const CONFIG: WeddingConfig = {
   dressCode: {
     heading: 'Co si obléct',
     style: 'Slavnostně, ale do zahrady',
-    description:
-      'Letní obleky, midi nebo dlouhé šaty. Obřad bude na trávníku, takže se hodí boty na širším podpatku.',
+    description: 'Letní obleky, midi nebo dlouhé šaty. Obřad bude na trávníku, takže se hodí boty na širším podpatku.',
     palette: [
       { name: 'Šalvějová', hex: '#9BAA93' },
       { name: 'Pudrově růžová', hex: '#C99A94' },
@@ -96,7 +95,11 @@ const CONFIG: WeddingConfig = {
       { course: 'Předkrm', dish: 'Carpaccio z červené řepy', description: 'kozí sýr, vlašské ořechy, med' },
       { course: 'Polévka', dish: 'Hovězí vývar', description: 'játrové knedlíčky, kořenová zelenina' },
       { course: 'Hlavní chod', dish: 'Pečená kachna', description: 'červené zelí, houskový a bramborový knedlík' },
-      { course: 'Vegetariánský hlavní chod', dish: 'Rizoto z lesních hub', description: 'parmazán, tymián, hnědé máslo' },
+      {
+        course: 'Vegetariánský hlavní chod',
+        dish: 'Rizoto z lesních hub',
+        description: 'parmazán, tymián, hnědé máslo',
+      },
       { course: 'Dezert', dish: 'Svatební dort', description: 'vanilka, maliny, mascarpone' },
     ],
     note: 'Alergie a omezení ve stravování nám prosím napište do odpovědi.',
@@ -115,7 +118,8 @@ const CONFIG: WeddingConfig = {
       },
       {
         question: 'Co nám darovat?',
-        answer: 'Největší dar je, že přijdete. Pokud nám přesto chcete něco dát, moc nás potěší příspěvek na svatební cestu.',
+        answer:
+          'Největší dar je, že přijdete. Pokud nám přesto chcete něco dát, moc nás potěší příspěvek na svatební cestu.',
       },
       {
         question: 'Kde můžu přespat?',

@@ -41,12 +41,21 @@
 }
 
 @media (min-width: 640px) {
-  .chip { width: 5rem; margin-left: -2.5rem; }
+  .chip {
+    width: 5rem;
+    margin-left: -2.5rem;
+  }
 }
 @media (min-width: 1024px) {
-  .chip { width: 6rem; margin-left: -3rem; }
+  .chip {
+    width: 6rem;
+    margin-left: -3rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .chip { rotate: var(--angle); transition: none; }
+  .chip {
+    rotate: var(--angle);
+    transition: none;
+  }
 }

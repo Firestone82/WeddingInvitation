@@ -87,10 +87,21 @@
 }
 
 @keyframes bead {
-  0% { top: 0; opacity: 0; }
-  18% { opacity: 1; }
-  72% { top: calc(100% - 6px); opacity: 1; }
-  100% { top: calc(100% - 6px); opacity: 0; }
+  0% {
+    top: 0;
+    opacity: 0;
+  }
+  18% {
+    opacity: 1;
+  }
+  72% {
+    top: calc(100% - 6px);
+    opacity: 1;
+  }
+  100% {
+    top: calc(100% - 6px);
+    opacity: 0;
+  }
 }
 
 .cue:hover .bead {

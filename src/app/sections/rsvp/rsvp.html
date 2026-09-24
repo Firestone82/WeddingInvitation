@@ -60,9 +60,25 @@
               <div class="flex items-center justify-between gap-4">
                 <span id="rsvp-guests-label" class="field-label !mb-0">{{ l.guests }}</span>
                 <div class="flex items-center gap-2" role="group" aria-labelledby="rsvp-guests-label">
-                  <button type="button" class="step" [attr.aria-label]="l.decrease" [disabled]="guests() <= 1" (click)="step(-1)">−</button>
+                  <button
+                    type="button"
+                    class="step"
+                    [attr.aria-label]="l.decrease"
+                    [disabled]="guests() <= 1"
+                    (click)="step(-1)"
+                  >
+                    −
+                  </button>
                   <output class="num w-8 text-center font-display text-2xl" aria-live="polite">{{ guests() }}</output>
-                  <button type="button" class="step" [attr.aria-label]="l.increase" [disabled]="guests() >= r.maxGuests" (click)="step(1)">+</button>
+                  <button
+                    type="button"
+                    class="step"
+                    [attr.aria-label]="l.increase"
+                    [disabled]="guests() >= r.maxGuests"
+                    (click)="step(1)"
+                  >
+                    +
+                  </button>
                 </div>
               </div>
 

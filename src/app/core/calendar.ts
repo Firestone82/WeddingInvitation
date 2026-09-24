@@ -1,7 +1,10 @@
 import { WeddingConfig } from '../config/wedding.model';
 
 const toIcsStamp = (iso: string) =>
-  new Date(iso).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+  new Date(iso)
+    .toISOString()
+    .replace(/[-:]/g, '')
+    .replace(/\.\d{3}/, '');
 
 function eventTitle(c: WeddingConfig) {
   return c.hero.calendarTitle;
@@ -47,7 +50,10 @@ export function downloadIcs(c: WeddingConfig): void {
   ].join('\r\n');
 
   const url = URL.createObjectURL(new Blob([ics], { type: 'text/calendar;charset=utf-8' }));
-  const a = Object.assign(document.createElement('a'), { href: url, download: `${slug(c.couple.first, c.couple.second)}.ics` });
+  const a = Object.assign(document.createElement('a'), {
+    href: url,
+    download: `${slug(c.couple.first, c.couple.second)}.ics`,
+  });
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }

@@ -22,12 +22,43 @@
   <!-- pressed disc -->
   <circle cx="50" cy="49" r="33" [attr.fill]="'url(#' + id + 'press)'" />
   <circle cx="50" cy="49" r="33" fill="none" stroke="#c45a67" stroke-opacity="0.45" stroke-width="1.2" />
-  <circle cx="50" cy="49" r="28.5" fill="none" stroke="#3d0c14" stroke-opacity="0.5" stroke-width="0.8" stroke-dasharray="0.8 2.2" />
+  <circle
+    cx="50"
+    cy="49"
+    r="28.5"
+    fill="none"
+    stroke="#3d0c14"
+    stroke-opacity="0.5"
+    stroke-width="0.8"
+    stroke-dasharray="0.8 2.2"
+  />
 
   <!-- embossed initials: dark shadow, then lit face -->
-  <g font-family="'Bodoni Moda Variable', 'Bodoni 72', Didot, serif" font-style="italic" font-weight="700" text-anchor="middle">
-    <text x="50.8" y="59.8" font-size="27" fill="#2e0910" fill-opacity="0.7" stroke="#2e0910" stroke-opacity="0.5" stroke-width="0.9">{{ initials()[0] }}<tspan font-size="17" dx="1">&amp;</tspan><tspan dx="1">{{ initials()[1] }}</tspan></text>
-    <text x="50" y="59" font-size="27" fill="#e3a0a7" stroke="#e3a0a7" stroke-width="0.9" stroke-linejoin="round">{{ initials()[0] }}<tspan font-size="17" dx="1">&amp;</tspan><tspan dx="1">{{ initials()[1] }}</tspan></text>
+  <g
+    font-family="'Bodoni Moda Variable', 'Bodoni 72', Didot, serif"
+    font-style="italic"
+    font-weight="700"
+    text-anchor="middle"
+  >
+    <text
+      x="50.8"
+      y="59.8"
+      font-size="27"
+      fill="#2e0910"
+      fill-opacity="0.7"
+      stroke="#2e0910"
+      stroke-opacity="0.5"
+      stroke-width="0.9"
+    >
+      {{ initials()[0] }}
+      <tspan font-size="17" dx="1">&amp;</tspan>
+      <tspan dx="1">{{ initials()[1] }}</tspan>
+    </text>
+    <text x="50" y="59" font-size="27" fill="#e3a0a7" stroke="#e3a0a7" stroke-width="0.9" stroke-linejoin="round">
+      {{ initials()[0] }}
+      <tspan font-size="17" dx="1">&amp;</tspan>
+      <tspan dx="1">{{ initials()[1] }}</tspan>
+    </text>
   </g>
   <!-- specular highlight on the wax -->
   <ellipse cx="33" cy="22" rx="11" ry="4.5" fill="#fff" fill-opacity="0.13" transform="rotate(-28 33 22)" />

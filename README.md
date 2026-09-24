@@ -6,6 +6,7 @@ Angular 22 + Tailwind CSS 4. Zoneless, standalone components, signals.
 npm install
 npm start            # http://localhost:4200
 npm run build        # static site in dist/wedding-invitation/browser
+npm run format       # Prettier (Angular defaults, 120 columns); format:check only reports
 ```
 
 Test on your phone over Wi-Fi with `npx ng serve --host 0.0.0.0` and open `http://<your-pc-ip>:4200`.

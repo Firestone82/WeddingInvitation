@@ -45,7 +45,9 @@
             <!-- the card that slides out -->
             <span #letter class="letter">
               <span #letterInner class="letter-inner">
-                <span class="letter-names">{{ names()[0] }} <span class="script-amp">&amp;</span> {{ names()[1] }}</span>
+                <span class="letter-names"
+                  >{{ names()[0] }} <span class="script-amp">&amp;</span> {{ names()[1] }}</span
+                >
                 <span class="letter-rule"></span>
                 <span class="letter-date">{{ dateLine() }}</span>
               </span>
@@ -66,9 +68,31 @@
               <path d="M0 0 L71 55 L0 100Z" fill="url(#pocketSide)" />
               <path d="M141 0 L70 55 L141 100Z" fill="url(#pocketSide)" />
               <path d="M0 100 L66 50 Q70.5 47 75 50 L141 100Z" fill="url(#pocketBottom)" />
-              <path d="M0 100 L66 50 Q70.5 47 75 50 L141 100" fill="none" stroke="#132a22" stroke-opacity="0.35" stroke-width="0.6" vector-effect="non-scaling-stroke" />
-              <path d="M0 100 L66 50.6 Q70.5 47.6 75 50.6 L141 100" fill="none" stroke="#6f9483" stroke-opacity="0.25" stroke-width="0.6" vector-effect="non-scaling-stroke" transform="translate(0 0.8)" />
-              <path d="M0 0 L71 55 M141 0 L70 55" fill="none" stroke="#132a22" stroke-opacity="0.25" stroke-width="0.6" vector-effect="non-scaling-stroke" />
+              <path
+                d="M0 100 L66 50 Q70.5 47 75 50 L141 100"
+                fill="none"
+                stroke="#132a22"
+                stroke-opacity="0.35"
+                stroke-width="0.6"
+                vector-effect="non-scaling-stroke"
+              />
+              <path
+                d="M0 100 L66 50.6 Q70.5 47.6 75 50.6 L141 100"
+                fill="none"
+                stroke="#6f9483"
+                stroke-opacity="0.25"
+                stroke-width="0.6"
+                vector-effect="non-scaling-stroke"
+                transform="translate(0 0.8)"
+              />
+              <path
+                d="M0 0 L71 55 M141 0 L70 55"
+                fill="none"
+                stroke="#132a22"
+                stroke-opacity="0.25"
+                stroke-width="0.6"
+                vector-effect="non-scaling-stroke"
+              />
             </svg>
 
             <!-- handwritten address -->

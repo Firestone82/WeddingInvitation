@@ -2,7 +2,11 @@
   <div class="mx-auto grid max-w-6xl gap-14 px-6 py-20 sm:py-28 lg:grid-cols-2 lg:items-center lg:gap-20">
     <div class="text-center lg:text-left">
       <h2 id="venue-title" appReveal="ink" class="section-title">{{ v.heading }}</h2>
-      <p appReveal="rise" [revealDelay]="100" class="mt-8 font-display text-[clamp(1.75rem,6vw,2.5rem)] italic leading-tight">
+      <p
+        appReveal="rise"
+        [revealDelay]="100"
+        class="mt-8 font-display text-[clamp(1.75rem,6vw,2.5rem)] italic leading-tight"
+      >
         {{ v.name }}
       </p>
       <address appReveal="rise" [revealDelay]="180" class="mt-2 not-italic text-ink/75">{{ v.address }}</address>
@@ -23,10 +27,13 @@
             target="_blank"
             rel="noopener"
             class="inline-flex min-h-11 items-center rounded-full px-5 transition-colors"
-            [class]="first
-              ? 'bg-bottle text-paper hover:bg-bottle-deep'
-              : 'border border-ink/25 hover:border-bottle hover:bg-bottle hover:text-paper'"
-          >{{ link.label }}</a>
+            [class]="
+              first
+                ? 'bg-bottle text-paper hover:bg-bottle-deep'
+                : 'border border-ink/25 hover:border-bottle hover:bg-bottle hover:text-paper'
+            "
+            >{{ link.label }}</a
+          >
         }
       </div>
     </div>

@@ -2,7 +2,9 @@
   --line-x: calc(4.25rem + 2.25rem / 2);
 }
 @media (min-width: 640px) {
-  .timeline { --line-x: calc(6rem + 3rem / 2); }
+  .timeline {
+    --line-x: calc(6rem + 3rem / 2);
+  }
 }
 
 /* track + drawn portion that follows the scroll */
@@ -36,7 +38,10 @@
   rotate: 45deg;
   border: 1px solid var(--color-gilt);
   background: var(--color-mist);
-  transition: opacity 500ms ease, background-color 600ms ease 300ms, transform 700ms var(--ease-out-soft);
+  transition:
+    opacity 500ms ease,
+    background-color 600ms ease 300ms,
+    transform 700ms var(--ease-out-soft);
 }
 .dot.is-revealed {
   background: var(--color-gilt);
@@ -46,6 +51,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .timeline::after { transform: none; }
-  .dot { background: var(--color-gilt); }
+  .timeline::after {
+    transform: none;
+  }
+  .dot {
+    background: var(--color-gilt);
+  }
 }

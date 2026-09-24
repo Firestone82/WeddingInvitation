@@ -21,7 +21,14 @@ function leaf(x: number, y: number, angle: number, len: number): string {
   return `M${f(x)} ${f(y)}Q${f(c1[0])} ${f(c1[1])} ${f(tip[0])} ${f(tip[1])}Q${f(c2[0])} ${f(c2[1])} ${f(x)} ${f(y)}Z`;
 }
 
-export function branch(p0: Pt, p1: Pt, p2: Pt, p3: Pt, count: number, maxLen: number): { stem: string; leaves: string } {
+export function branch(
+  p0: Pt,
+  p1: Pt,
+  p2: Pt,
+  p3: Pt,
+  count: number,
+  maxLen: number,
+): { stem: string; leaves: string } {
   const out: string[] = [];
   for (let i = 0; i < count; i++) {
     const t = 0.08 + (i / count) * 0.9;

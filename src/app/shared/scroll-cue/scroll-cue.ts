@@ -59,15 +59,17 @@ export class ScrollCue {
 
   private nudge(): void {
     if (this.reduced || this.everScrolled || !this.atTop()) return;
-    document.querySelector('main')?.animate(
-      [
-        { transform: 'translateY(0)' },
-        { transform: 'translateY(-44px)', offset: 0.35 },
-        { transform: 'translateY(0)', offset: 0.68 },
-        { transform: 'translateY(-12px)', offset: 0.84 },
-        { transform: 'translateY(0)' },
-      ],
-      { duration: 1300, easing: 'cubic-bezier(0.45, 0, 0.35, 1)' },
-    );
+    document
+      .querySelector('main')
+      ?.animate(
+        [
+          { transform: 'translateY(0)' },
+          { transform: 'translateY(-44px)', offset: 0.35 },
+          { transform: 'translateY(0)', offset: 0.68 },
+          { transform: 'translateY(-12px)', offset: 0.84 },
+          { transform: 'translateY(0)' },
+        ],
+        { duration: 1300, easing: 'cubic-bezier(0.45, 0, 0.35, 1)' },
+      );
   }
 }

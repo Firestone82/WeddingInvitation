@@ -3,8 +3,13 @@
 
   <ol appScrollProgress class="timeline relative mx-auto mt-14 max-w-xl">
     @for (item of c.schedule.items; track item.time) {
-      <li class="stop relative grid grid-cols-[4.25rem_1fr] gap-x-9 pb-10 last:pb-0 sm:grid-cols-[6rem_1fr] sm:gap-x-12">
-        <time appReveal="rise" class="num pt-0.5 text-right font-display text-[1.35rem] leading-tight text-gilt-deep sm:text-[1.6rem]">
+      <li
+        class="stop relative grid grid-cols-[4.25rem_1fr] gap-x-9 pb-10 last:pb-0 sm:grid-cols-[6rem_1fr] sm:gap-x-12"
+      >
+        <time
+          appReveal="rise"
+          class="num pt-0.5 text-right font-display text-[1.35rem] leading-tight text-gilt-deep sm:text-[1.6rem]"
+        >
           {{ item.time }}
         </time>
         <span appReveal="rise" class="dot" aria-hidden="true"></span>

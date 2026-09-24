@@ -18,5 +18,8 @@ svg {
   stroke-dashoffset: 0;
 }
 @media (prefers-reduced-motion: reduce) {
-  .stroke { transition: none; stroke-dashoffset: 0; }
+  .stroke {
+    transition: none;
+    stroke-dashoffset: 0;
+  }
 }
