@@ -49,9 +49,10 @@ It starts when the envelope is opened (browsers only allow sound after a tap) an
 
 ## The intro
 
-- **Arrival**: the envelope drops in, the seal is stamped, the address writes itself. It waits for the fonts first, so the handwriting never flashes in a fallback font.
-- **Idle**: leaf shadows sway, gold dust drifts, and the envelope tilts towards the mouse. On Android it follows the gyroscope; on iPhone (which needs a permission prompt) it sways on its own.
-- **Opening**: the seal cracks and tumbles, then crumbs, sparks and a haptic tick on Android. The flap opens with shading, the letter slides out, and petals burst. The card grows to fill the screen, and the names fly to the page heading and hand over to it.
+- **Arrival**: seen from above, the envelope is tossed onto a table in window light, address side up, with a postage stamp and a postmark struck with the wedding date. It is then turned over to show the wax seal. The intro waits for the fonts first, so the handwriting never flashes in a fallback font.
+- **Idle**: leaf shadows sway, gold dust drifts, light glints across the wax, and the envelope tilts towards the mouse. On Android it follows the gyroscope; on iPhone (which needs a permission prompt) it sways on its own.
+- **Opening**: the flap pulls against the seal until the wax cracks along the flap's edge and snaps (chips fly, haptic tick on Android). Half the seal rides away on the flap, which falls open onto the table and bounces; the other half stays on the envelope. The card is drawn out, dried petals spill onto the table, and the card is lifted, grows to fill the screen, and its names fly to the page heading.
+- **The seal** is painted once into a bitmap with real lighting (`src/app/shared/seal/wax.ts`), so it looks the same everywhere and costs nothing to animate. The card's wording is `envelope.cardTitle` in the config; the postmark date comes from the wedding date.
 - **Tuning**: timings are the constants at the top of `envelope.ts`, mirrored in the timeline comment in `envelope.css`. Particle counts are in `open()`.
 - **Fallback**: with "reduce motion" switched on, all of this becomes a quiet fade.
 

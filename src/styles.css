@@ -223,13 +223,13 @@
 /* animatable custom properties for the envelope's tilt and sheen */
 @property --rx {
   syntax: '<angle>';
-  inherits: true;
+  inherits: false;
   initial-value: 0deg;
 }
 
 @property --ry {
   syntax: '<angle>';
-  inherits: true;
+  inherits: false;
   initial-value: 0deg;
 }
 

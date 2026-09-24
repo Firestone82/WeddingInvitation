@@ -1,23 +1,48 @@
 /*
- * Arrival (ms after fonts are ready)          Opening (ms after tap)
- *   0     envelope drops in and lands            0     seal pressed, haptic tick
- *   900   wax seal is stamped                    100   crack runs through the seal
- *   1250  gold ring flashes, address is written  280   halves tumble off, crumbs + sparks (canvas)
- *   1900  hint appears, seal pulses              480   flap swings open, shading follows the angle
- *                                                1200  letter slides out and settles
- *                                                1350  petals burst (canvas)
- *                                                2500  card lifts and grows to fill the screen
- *                                                3500  card dissolves into the page
+ * Arrival (ms after fonts are ready)           Opening (ms after tap)
+ *   0     tossed onto the table, slides still     0     finger presses the wax, haptic tick
+ *   1800  picked up and turned over               120   flap starts to pull, the wax strains and cracks
+ *   2225  seal side up                            440   the wax gives: chips fly, the flap springs free
+ *   2700  hint appears, light glints on the wax   790   flap stands on its edge; liner comes into view
+ *                                                 1130  flap drops onto the table and bounces
+ *                                                 1150  the card is drawn out
+ *                                                 1400  dried petals spill from the envelope (canvas)
+ *                                                 2100  the card is lifted off
+ *                                                 2500  it grows to fill the screen, the envelope falls away
+ *                                                 3250  it dissolves into the page
+ * Keep in sync with ARRIVE_MS and OPEN in envelope.ts.
  */
 
 :host {
+  --t-snap: 440ms; /* the wax gives way */
+  --t-edge: 790ms; /* the flap stands on its edge */
+
   --liner:
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 22 22'%3E%3Cpath d='M0 0L22 22M22 0L0 22' stroke='%23b08d57' stroke-opacity='.5' stroke-width='.6' fill='none'/%3E%3Cg fill='%23b08d57'%3E%3Ccircle cx='11' cy='11' r='1.4'/%3E%3Ccircle cx='0' cy='0' r='1.4'/%3E%3Ccircle cx='22' cy='0' r='1.4'/%3E%3Ccircle cx='0' cy='22' r='1.4'/%3E%3Ccircle cx='22' cy='22' r='1.4'/%3E%3C/g%3E%3Cg fill='%23a8666b' fill-opacity='.55'%3E%3Cellipse cx='11' cy='2.2' rx='.9' ry='1.6'/%3E%3Cellipse cx='11' cy='19.8' rx='.9' ry='1.6'/%3E%3Cellipse cx='2.2' cy='11' rx='1.6' ry='.9'/%3E%3Cellipse cx='19.8' cy='11' rx='1.6' ry='.9'/%3E%3C/g%3E%3C/svg%3E")
       0 0 / 22px 22px,
     #ead8d1;
-  --noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' stitchTiles='stitch' result='t'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.45 0 0 0 -0.2' result='d'/%3E%3CfeColorMatrix in='t' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 -0.3 0 0 0 0.14'/%3E%3CfeMerge%3E%3CfeMergeNode in='d'/%3E%3CfeMergeNode/%3E%3C/feMerge%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  --ease-flap: cubic-bezier(0.65, 0, 0.35, 1);
+  /* --grain (envelope) and --fibres (card) are generated bitmaps, set by envelope.ts */
+  /* laid paper: fine wire lines and, further apart, the chain lines of the mould */
+  --laid:
+    repeating-linear-gradient(0deg, rgb(255 255 255 / 0.03) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgb(0 0 0 / 0.07) 0 1px, transparent 1px 26px);
+  /* edges rubbed darker by handling */
+  --wear: radial-gradient(ellipse 80% 85% at 50% 50%, transparent 62%, rgb(8 20 15 / 0.24));
+
+  /* the card: cotton paper, yellowed at the edges and foxed here and there */
+  --paper: var(--fibres, none), linear-gradient(172deg, #f6efdf 0%, #f1e6cf 60%, #ecdfc4 100%);
+  --age:
+    radial-gradient(circle at 14% 22%, rgb(160 112 58 / 0.16), transparent 3.2%),
+    radial-gradient(circle at 16% 25%, rgb(160 112 58 / 0.08), transparent 1.6%),
+    radial-gradient(circle at 83% 66%, rgb(160 112 58 / 0.11), transparent 4.5%),
+    radial-gradient(circle at 71% 13%, rgb(160 112 58 / 0.1), transparent 2.4%),
+    radial-gradient(circle at 27% 84%, rgb(160 112 58 / 0.09), transparent 3.6%),
+    radial-gradient(ellipse 40% 26% at 96% 98%, rgb(150 104 52 / 0.16), transparent),
+    radial-gradient(ellipse 92% 88% at 50% 46%, transparent 56%, rgb(140 98 48 / 0.24));
+  --corner: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%237a5834' stroke-opacity='.8'%3E%3Cpath d='M1 19V8Q1 1 8 1H19' stroke-width='.8'/%3E%3Cpath d='M4.6 19V10.5Q4.6 4.6 10.5 4.6H19' stroke-width='.45'/%3E%3Ccircle cx='8.7' cy='8.7' r='1.25' fill='%237a5834' stroke='none'/%3E%3C/svg%3E");
+  --rule: rgb(122 88 52 / 0.6);
+  --ink: #33241a;
+
   --ease-grow: cubic-bezier(0.76, 0, 0.24, 1);
 
   position: fixed;
@@ -40,6 +65,7 @@
     linear-gradient(180deg, #eef0ea 0%, #dfe4da 100%);
 }
 
+/* under the envelope: drawn over it, they double the compositing work of every animated frame */
 .leaves {
   position: absolute;
   inset: 0;
@@ -117,7 +143,6 @@
 
 .scene {
   position: relative;
-  perspective: 1400px;
   visibility: hidden;
 }
 
@@ -125,44 +150,79 @@
   visibility: visible;
 }
 
+/* ---------- arrival: dropped from above onto the table, seen from above ---------- */
+
 :host(.is-arriving) .arrive {
-  animation: drop 1100ms cubic-bezier(0.2, 0.8, 0.25, 1) backwards;
+  animation: land 1000ms both;
 }
 
-@keyframes drop {
+@keyframes land {
   0% {
-    transform: translateY(-65vh) rotate(-14deg) rotateX(40deg);
+    transform: translate(10vw, -30vh) rotate(-17deg) scale(1.12);
     opacity: 0;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.9, 0.6);
   }
-  12% {
+  8% {
     opacity: 1;
   }
-  62% {
-    transform: translateY(10px) rotate(1.4deg) rotateX(-6deg);
+  52% {
+    transform: translate(-10px, 6px) rotate(-4deg) scale(1);
+    animation-timing-function: cubic-bezier(0.15, 0.6, 0.3, 1);
   }
-  80% {
-    transform: translateY(-4px) rotate(-0.5deg) rotateX(2deg);
+  100% {
+    transform: translate(0, 0) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+}
+
+/* shadow on the table: offset and faint while high up, tight once it lands */
+.cast {
+  position: absolute;
+  inset: 0;
+  border-radius: 3px;
+  background: rgb(18 32 26 / 0.26);
+  box-shadow: 0 0 10px 5px rgb(18 32 26 / 0.26);
+  translate: 5px 8px;
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+:host(.is-arriving) .cast {
+  animation:
+    cast-land 1000ms both,
+    cast-turn 850ms ease-in-out 1800ms;
+}
+
+@keyframes cast-land {
+  0% {
+    transform: translate(34px, 60px) scale(1.12);
+    opacity: 0;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.9, 0.6);
+  }
+  52% {
+    transform: none;
+    opacity: 0.9;
   }
   100% {
     transform: none;
+    opacity: 0.9;
   }
 }
 
-.float {
-  animation: float 6s ease-in-out 1.2s infinite;
-}
-
-@keyframes float {
+/* while it is lifted and turned, the shadow narrows, softens and drifts away from it */
+@keyframes cast-turn {
   0%,
   100% {
-    transform: translateY(0);
+    transform: none;
   }
   50% {
-    transform: translateY(-8px);
+    transform: translate(10px, 14px) scale(0.8, 0.97);
+    opacity: 0.5;
   }
 }
 
 .tilt {
+  position: relative;
   transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
   transition: scale 220ms ease;
 }
@@ -178,21 +238,21 @@
  */
 @media (hover: none) {
   :host(:not(.has-gyro)) .tilt {
-    animation: sway 7s ease-in-out infinite;
+    animation: sway 8s ease-in-out infinite;
   }
 
   :host(:not(.has-gyro)) .sheen::before {
-    animation: sheen-sway 7s ease-in-out infinite;
+    animation: sheen-sway 8s ease-in-out infinite;
   }
 }
 
 @keyframes sway {
   0%,
   100% {
-    transform: rotateX(3deg) rotateY(-5deg);
+    transform: rotateX(2deg) rotateY(-3.5deg);
   }
   50% {
-    transform: rotateX(-2deg) rotateY(5deg);
+    transform: rotateX(-1.5deg) rotateY(3.5deg);
   }
 }
 
@@ -207,69 +267,59 @@
   }
 }
 
-:host(.is-opening) .float {
-  animation-play-state: paused;
-}
-
 /* the script takes over from the sway and eases the envelope flat */
 :host(.is-opening) .tilt {
   animation: none;
 }
 
-/* contact shadow on the table, breathing with the float */
-.ground {
-  position: absolute;
-  left: 50%;
-  top: 100%;
-  width: 96%;
-  height: 46px;
-  margin-top: 6px;
-  translate: calc(-50% + var(--px, 0px) * 1.5) -50%;
-  background: radial-gradient(
-    closest-side,
-    rgb(22 38 32 / 0.4),
-    rgb(22 38 32 / 0.16) 50%,
-    rgb(22 38 32 / 0.05) 80%,
-    transparent
-  );
-  opacity: 0;
-  pointer-events: none;
-}
-
-:host(.is-arriving) .ground {
-  opacity: 1;
+/*
+ * Turning it over: the address side rotates up to its edge, then the seal side
+ * comes down from the other edge. Two elements, each turning a quarter, so no
+ * 3D sorting is needed and nothing is ever seen mirrored. Before and after its
+ * quarter turn each side is simply hidden, never left standing on its edge:
+ * an edge-on layer can send the browser's rasterizer into a spin.
+ */
+:host(.is-arriving) .front-face {
   animation:
-    ground-in 1100ms cubic-bezier(0.2, 0.8, 0.25, 1) backwards,
-    ground-breathe 6s ease-in-out 1.2s infinite;
+    front-up 425ms cubic-bezier(0.5, 0, 0.8, 0.4) 1800ms,
+    gone 1ms linear 2225ms forwards;
 }
 
-@keyframes ground-in {
+:host(.is-arriving) .turn {
+  animation:
+    gone 2225ms linear,
+    back-down 425ms cubic-bezier(0.2, 0.6, 0.35, 1) 2225ms;
+}
+
+@keyframes gone {
+  from,
+  to {
+    visibility: hidden;
+  }
+}
+
+@keyframes front-up {
   0% {
-    opacity: 0;
-    transform: scale(0.3);
-  }
-  62% {
-    opacity: 1;
-    transform: scale(1.05);
+    transform: perspective(1400px) translateZ(0) rotateY(0deg) rotate(0deg);
   }
   100% {
-    transform: none;
+    transform: perspective(1400px) translateZ(80px) rotateY(90deg) rotate(-3deg);
   }
 }
 
-@keyframes ground-breathe {
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 1;
+@keyframes back-down {
+  0% {
+    transform: perspective(1400px) translateZ(80px) rotateY(-90deg) rotate(-3deg);
   }
-  50% {
-    transform: scale(0.92);
-    opacity: 0.78;
+  80% {
+    transform: perspective(1400px) translateZ(0) rotateY(4deg) rotate(0.4deg);
+  }
+  100% {
+    transform: perspective(1400px) translateZ(0) rotateY(0deg) rotate(0deg);
   }
 }
 
-/* ---------- envelope ---------- */
+/* ---------- envelope: the seal side ---------- */
 
 .envelope {
   position: relative;
@@ -294,11 +344,10 @@
 
 .env-back,
 .env-pocket,
-.letter,
-.recipient,
+.pocket-paper,
 .flap-wrap,
+.wax-piece,
 .seal,
-.grain,
 .sheen {
   position: absolute;
 }
@@ -308,7 +357,7 @@
   z-index: 1;
   border-radius: 3px;
   background: #1a352d;
-  box-shadow: 0 2px 5px rgb(22 38 32 / 0.25);
+  box-shadow: 0 1px 2px rgb(22 38 32 / 0.3);
 }
 
 .env-back::after {
@@ -318,36 +367,40 @@
   background: var(--liner);
 }
 
-.env-pocket {
+.pocket {
+  position: absolute;
   inset: 0;
   z-index: 4;
+  pointer-events: none;
+  /*
+   * A layer of its own, painted once. On its own, the clipped texture would be
+   * promoted (it overlaps the moving card) and its clip redone every frame.
+   */
+  will-change: transform;
+}
+
+.env-pocket {
+  inset: 0;
   width: 100%;
   height: 100%;
   overflow: visible;
-  pointer-events: none;
 }
 
-.grain,
+/* the pocket's paper texture, cut to the pocket's shape */
+.pocket-paper {
+  inset: 0;
+  clip-path: polygon(0 0, 50.35% 55%, 100% 0, 100% 100%, 0 100%);
+  background: var(--wear), var(--grain, none), var(--laid);
+}
+
+/* the moving light, over the paper and flap, under the wax seal */
 .sheen {
   inset: 0;
-  z-index: 8;
+  z-index: 6;
+  overflow: hidden;
   border-radius: 3px;
   pointer-events: none;
   transition: opacity 400ms ease;
-}
-
-/*
- * Grain and sheen use plain alpha, not blend modes: a blended layer on top
- * makes the browser re-composite the whole envelope every frame.
- */
-.grain {
-  background: var(--grain);
-}
-
-/* over the paper and flap, under the wax seal */
-.sheen {
-  z-index: 6;
-  overflow: hidden;
 }
 
 /* the light is a fixed spot on a layer twice the envelope's size, slid to (--lx, --ly) */
@@ -355,60 +408,68 @@
   content: '';
   position: absolute;
   inset: -50%;
-  /* a pale tint of the paper rather than white, so it lifts the green the way soft-light did */
+  /* a pale tint of the paper rather than white, so it lifts the green without washing it out */
   background: radial-gradient(circle 60cqi at 50% 50%, rgb(140 215 185 / 0.3), rgb(140 215 185 / 0));
   translate: calc((var(--lx, 30%) - 50%) / 2) calc((var(--ly, 20%) - 50%) / 2);
 }
 
-:host(.is-opening) .grain,
 :host(.is-opening) .sheen {
   opacity: 0;
 }
 
-/* ---------- handwritten address ---------- */
+/* ---------- the address side ---------- */
 
-.recipient {
-  z-index: 5;
+.front-face {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  container-type: inline-size;
+  border-radius: 3px;
+  background:
+    var(--wear), var(--grain, none), var(--laid), linear-gradient(160deg, #305b4c 0%, #27493e 60%, #22443a 100%);
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 0.05),
+    0 1px 2px rgb(22 38 32 / 0.3);
+  cursor: pointer;
+}
+
+.postage {
+  position: absolute;
+  top: 5cqi;
+  right: 5cqi;
+  width: 15cqi;
+}
+
+.address {
+  position: absolute;
   left: 0;
   right: 0;
-  bottom: 10%;
+  top: 47%;
   text-align: center;
   font-family: var(--font-script);
-  font-size: 7cqi;
+  font-size: 8cqi;
   line-height: 1.2;
-  color: #d8bf8a;
-  pointer-events: none;
-  -webkit-mask-image: linear-gradient(90deg, #000 42%, transparent 58%);
-  mask-image: linear-gradient(90deg, #000 42%, transparent 58%);
-  -webkit-mask-size: 250% 100%;
-  mask-size: 250% 100%;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-position: 0 0;
-  mask-position: 0 0;
+  color: #dcc38f;
+  text-shadow: 0 0.5px 0 rgb(0 0 0 / 0.25);
 }
 
-:host(.is-arriving) .recipient {
-  animation: write 1500ms cubic-bezier(0.45, 0.05, 0.4, 1) 1250ms backwards;
-}
-
-@keyframes write {
-  from {
-    -webkit-mask-position: 100% 0;
-    mask-position: 100% 0;
-  }
-  to {
-    -webkit-mask-position: 0 0;
-    mask-position: 0 0;
-  }
+.swash {
+  display: block;
+  width: 44cqi;
+  height: auto;
+  margin: 0.4cqi auto 0;
+  fill: none;
+  stroke: #dcc38f;
+  stroke-width: 0.9;
+  stroke-linecap: round;
+  opacity: 0.75;
 }
 
 /* ---------- flap ---------- */
 
 /*
  * The flap's shadow is its own flat layer. A filter on the rotating flap
- * has to be redrawn every frame, which stalls phones mid-swing so the flap
- * seems to vanish and pop open.
+ * has to be redrawn every frame, which stalls phones mid-swing.
  */
 .flap-shadow {
   position: absolute;
@@ -418,7 +479,6 @@
   translate: 0 3px;
   filter: blur(2.5px);
   pointer-events: none;
-  transition: opacity 250ms ease 480ms;
 }
 
 .flap-shadow::before {
@@ -431,6 +491,7 @@
 
 :host(.is-opening) .flap-shadow {
   opacity: 0;
+  transition: opacity 120ms ease var(--t-snap);
 }
 
 .flap-wrap {
@@ -440,17 +501,15 @@
   transform-origin: 50% 0;
   transform: rotateX(0deg);
   will-change: transform;
-  transition:
-    transform 900ms var(--ease-flap) 480ms,
-    z-index 0s linear 930ms;
 }
 
 .flap {
   position: absolute;
   inset: 0;
   clip-path: polygon(0 0, 100% 0, 54% 95%, 50% 100%, 46% 95%);
-  background: var(--noise), linear-gradient(180deg, #2f5a4b 0%, #264c40 70%, #22463a 100%);
-  background-blend-mode: overlay, normal;
+  background:
+    linear-gradient(180deg, rgb(8 20 15 / 0.2), transparent 14%), var(--grain, none), var(--laid),
+    linear-gradient(180deg, #2f5a4b 0%, #264c40 70%, #22463a 100%);
 }
 
 .flap-liner,
@@ -462,198 +521,131 @@
 
 .flap-liner {
   background: var(--liner);
-  transition: opacity 0s linear 930ms;
 }
 
+/*
+ * The flap's shape drawn with two gradients rather than clipped: its opacity
+ * animates, and a clipped, animating layer costs an extra render pass per frame.
+ */
 .flap-shade {
-  background: #0c1d16;
+  background:
+    linear-gradient(to top right, transparent 50%, #0c1d16 50%) left / 50% 100% no-repeat,
+    linear-gradient(to top left, transparent 50%, #0c1d16 50%) right / 50% 100% no-repeat;
 }
 
+/*
+ * The flap pulls against the wax, is let go when it breaks, stands up, then
+ * falls back onto the table under its own weight and bounces once.
+ */
 :host(.is-opening) .flap-wrap {
   z-index: 2;
-  transform: rotateX(180deg);
+  transition: z-index 0s linear var(--t-edge);
+  animation: flap-open 1400ms linear 120ms both;
 }
 
 :host(.is-opening) .flap-liner {
   opacity: 1;
+  transition: opacity 0s linear var(--t-edge);
+}
+
+:host(.is-opening) .flap-shade {
+  animation: flap-shade 1400ms linear 120ms both;
+}
+
+@keyframes flap-open {
+  0% {
+    transform: rotateX(0deg);
+    animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1);
+  }
+  22% {
+    transform: rotateX(6deg);
+    animation-timing-function: linear;
+  }
+  23% {
+    transform: rotateX(8deg);
+    animation-timing-function: cubic-bezier(0.2, 0.75, 0.45, 1);
+  }
+  48% {
+    transform: rotateX(90deg);
+    animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45);
+  }
+  72% {
+    transform: rotateX(180deg);
+    animation-timing-function: cubic-bezier(0.2, 0.6, 0.4, 1);
+  }
+  81% {
+    transform: rotateX(171deg);
+    animation-timing-function: cubic-bezier(0.6, 0, 0.8, 0.4);
+  }
+  89% {
+    transform: rotateX(180deg);
+    animation-timing-function: cubic-bezier(0.2, 0.6, 0.4, 1);
+  }
+  95% {
+    transform: rotateX(177.5deg);
+    animation-timing-function: ease-in;
+  }
+  100% {
+    transform: rotateX(180deg);
+  }
 }
 
 /* darkest when the flap stands on its edge, lit again as it lies back */
-:host(.is-opening) .flap-shade {
-  animation: flap-shade 900ms linear 480ms;
-}
-
 @keyframes flap-shade {
   0% {
     opacity: 0;
   }
-  50% {
+  23% {
+    opacity: 0.12;
+  }
+  48% {
     opacity: 0.6;
   }
+  72% {
+    opacity: 0.04;
+  }
+  81% {
+    opacity: 0.14;
+  }
+  89%,
   100% {
     opacity: 0;
   }
 }
 
-/* ---------- letter ---------- */
+/* ---------- the wax seal ---------- */
 
-.letter {
-  z-index: 3;
-  left: 5.5%;
-  right: 5.5%;
-  top: 5%;
-  height: 88%;
-  padding: 3.2cqi;
-  border-radius: 2px;
-  background: linear-gradient(180deg, #fdfcf9, #f5f3ec);
-  box-shadow: 0 1px 3px rgb(30 42 37 / 0.2);
+.seal,
+.wax-piece {
+  width: 23cqi;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  pointer-events: none;
 }
 
-.letter-inner {
-  display: flex;
+.seal app-seal,
+.wax-piece app-seal {
+  position: absolute;
+  inset: 0;
+  width: 100%;
   height: 100%;
-  flex-direction: column;
-  align-items: center;
-  padding-top: 6cqi;
-  gap: 2cqi;
-  border: 1px solid rgb(176 141 87 / 0.55);
-  color: #1e2a25;
 }
-
-.letter-names,
-.sheet-names {
-  font-family: var(--font-script);
-  line-height: 1.15;
-  white-space: nowrap;
-}
-
-.letter-names {
-  font-size: 9cqi;
-}
-
-.letter-rule,
-.sheet-rule {
-  height: 1px;
-  background: #b08d57;
-}
-
-.letter-rule {
-  width: 10cqi;
-}
-
-.letter-date,
-.sheet-date {
-  font-family: var(--font-sans);
-  letter-spacing: 0.04em;
-  color: rgb(30 42 37 / 0.75);
-}
-
-.letter-date {
-  font-size: 3.2cqi;
-}
-
-:host(.is-opening) .letter {
-  animation: letter-rise 1150ms cubic-bezier(0.3, 0.7, 0.2, 1) 1200ms both;
-}
-
-@keyframes letter-rise {
-  0% {
-    transform: translateY(0) rotate(0);
-  }
-  62% {
-    transform: translateY(-64%) rotate(-1.4deg);
-  }
-  100% {
-    transform: translateY(-58%) rotate(0deg);
-  }
-}
-
-:host(.is-lifting) .letter {
-  visibility: hidden;
-}
-
-/* ---------- seal ---------- */
 
 .seal {
   z-index: 7;
   left: 50%;
   top: 58%;
-  width: 23cqi;
-  aspect-ratio: 1;
-  translate: -50% -50%;
+  pointer-events: auto;
   transition: scale 250ms ease;
-}
-
-/* gold halo behind the wax; pulsing its opacity stays on the compositor, unlike a filter */
-.seal::before {
-  content: '';
-  position: absolute;
-  inset: -16%;
-  border-radius: 50%;
-  background: radial-gradient(closest-side, rgb(216 191 138 / 0.6) 55%, rgb(216 191 138 / 0));
-  opacity: 0;
-  pointer-events: none;
-}
-
-:host(.is-arriving) .seal {
-  animation: seal-stamp 520ms cubic-bezier(0.3, 0.6, 0.3, 1) 900ms backwards;
-}
-
-:host(.is-arriving) .seal::before {
-  animation: seal-glow 2.8s ease-in-out 2000ms infinite;
-}
-
-@keyframes seal-stamp {
-  0% {
-    opacity: 0;
-    scale: 1.8;
-  }
-  55% {
-    opacity: 1;
-    scale: 0.9;
-  }
-  78% {
-    scale: 1.04;
-  }
-  100% {
-    scale: 1;
-  }
-}
-
-@keyframes seal-glow {
-  0%,
-  100% {
-    opacity: 0;
-  }
-  50% {
-    opacity: 1;
-  }
 }
 
 @media (hover: hover) {
   :host(.is-ready) .envelope:hover .seal {
-    scale: 1.06;
+    scale: 1.05;
   }
 }
 
-.seal-half {
-  position: absolute;
-  inset: 0;
-}
-
-.seal-half > app-seal {
-  width: 100%;
-  height: 100%;
-}
-
-.seal-left {
-  clip-path: polygon(-10% -10%, 54% -10%, 49% 18%, 56% 34%, 47% 52%, 55% 70%, 48% 86%, 52% 110%, -10% 110%);
-}
-
-.seal-right {
-  clip-path: polygon(54% -10%, 110% -10%, 110% 110%, 52% 110%, 48% 86%, 55% 70%, 47% 52%, 56% 34%, 49% 18%);
-}
-
+/* the ring that invites a tap */
 .seal-ring {
   position: absolute;
   inset: 3%;
@@ -663,23 +655,8 @@
   pointer-events: none;
 }
 
-:host(.is-arriving) .seal-ring {
-  animation: ring-flash 650ms ease-out 1230ms backwards;
-}
-
 :host(.is-ready) .seal-ring {
-  animation: ring-pulse 2.6s ease-out 300ms infinite backwards;
-}
-
-@keyframes ring-flash {
-  0% {
-    opacity: 0.95;
-    transform: scale(0.85);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(2.2);
-  }
+  animation: ring-pulse 2.8s ease-out 900ms infinite backwards;
 }
 
 @keyframes ring-pulse {
@@ -688,14 +665,59 @@
     transform: scale(0.95);
   }
   12% {
-    opacity: 0.7;
+    opacity: 0.6;
   }
   100% {
     opacity: 0;
-    transform: scale(1.9);
+    transform: scale(1.8);
   }
 }
 
+/* now and then the window light slides across the glossy wax */
+.seal-glint {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.seal-glint::before {
+  content: '';
+  position: absolute;
+  inset: 0 -100%;
+  background: linear-gradient(
+    105deg,
+    transparent 42%,
+    rgb(255 236 230 / 0.42) 48.5%,
+    rgb(255 236 230 / 0.1) 52%,
+    transparent 57%
+  );
+  opacity: 0;
+}
+
+:host(.is-ready) .seal-glint::before {
+  animation: glint 4.6s ease-in-out 300ms infinite;
+}
+
+@keyframes glint {
+  0% {
+    translate: -42% 0;
+    opacity: 0;
+  }
+  6% {
+    opacity: 1;
+  }
+  30% {
+    translate: 42% 0;
+    opacity: 0;
+  }
+  100% {
+    translate: 42% 0;
+    opacity: 0;
+  }
+}
+
+/* the fracture, drawn from the flap's tip out to both sides as the flap pulls */
 .crack {
   position: absolute;
   inset: 0;
@@ -704,99 +726,363 @@
   overflow: visible;
   opacity: 0;
   pointer-events: none;
+  /* its own layer: redrawing the line as it grows must not repaint the wax under it */
+  will-change: transform;
 }
 
 .crack path {
   fill: none;
-  stroke: #26060c;
-  stroke-width: 2.6;
-  stroke-linejoin: miter;
+  stroke: #22050a;
+  stroke-width: 1.5;
+  stroke-linejoin: round;
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
 }
 
-/* opening: press, crack, split */
-
+/* pressed, strained, then gone: the two pieces take over */
 :host(.is-opening) .seal {
-  animation: seal-press 240ms ease-out forwards;
+  visibility: hidden;
+  transition: visibility 0s linear var(--t-snap);
+  animation: seal-strain var(--t-snap) linear both;
 }
 
 :host(.is-opening) .seal-ring,
-:host(.is-opening) .seal::before {
+:host(.is-opening) .seal-glint {
   animation: none;
   opacity: 0;
 }
 
 :host(.is-opening) .crack {
-  animation: crack-show 400ms linear both;
+  opacity: 1;
 }
 
 :host(.is-opening) .crack path {
-  animation: crack-draw 170ms cubic-bezier(0.5, 0, 0.5, 1) 100ms both;
+  animation: crack-run 300ms cubic-bezier(0.6, 0, 0.9, 0.5) 130ms both;
 }
 
-:host(.is-opening) .seal-left {
-  animation: crack-left 1000ms cubic-bezier(0.45, 0, 0.8, 0.4) 270ms forwards;
-}
-
-:host(.is-opening) .seal-right {
-  animation: crack-right 1000ms cubic-bezier(0.45, 0, 0.8, 0.4) 270ms forwards;
-}
-
-@keyframes seal-press {
+@keyframes seal-strain {
   0% {
     scale: 1;
   }
-  60% {
-    scale: 0.9;
-  }
-  100% {
+  14% {
     scale: 0.95;
   }
-}
-
-@keyframes crack-show {
-  0%,
-  70% {
-    opacity: 1;
+  32% {
+    scale: 0.975;
+    rotate: 0deg;
+  }
+  48% {
+    rotate: 0.8deg;
+  }
+  62% {
+    rotate: -0.7deg;
+  }
+  76% {
+    rotate: 0.9deg;
+  }
+  90% {
+    scale: 0.985;
+    rotate: -0.5deg;
   }
   100% {
-    opacity: 0;
+    scale: 1;
+    rotate: 0deg;
   }
 }
 
-@keyframes crack-draw {
+@keyframes crack-run {
   to {
     stroke-dashoffset: 0;
   }
 }
 
-@keyframes crack-left {
+/* the broken pieces: one rides on the flap, one stays on the envelope */
+.wax-piece {
+  visibility: hidden;
+}
+
+.wax-top {
+  left: 50%;
+  top: 100%;
+}
+
+.wax-bottom {
+  z-index: 7;
+  left: 50%;
+  top: 58%;
+}
+
+/* clipped inside, not on the animated element itself, so the clip is painted once */
+.wax-clip {
+  position: absolute;
+  inset: 0;
+}
+
+/* the broken face of the wax, darker than its polished top */
+.wax-edge {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.wax-edge path {
+  fill: none;
+  stroke: #2a0409;
+  stroke-opacity: 0.85;
+  stroke-width: 2.6;
+  stroke-linejoin: round;
+}
+
+:host(.is-opening) .wax-piece {
+  visibility: visible;
+  transition: visibility 0s linear var(--t-snap);
+}
+
+/* once the flap passes its edge, its outside (and the wax on it) faces away */
+:host(.is-opening) .wax-top {
+  opacity: 0;
+  transition:
+    visibility 0s linear var(--t-snap),
+    opacity 0s linear var(--t-edge);
+}
+
+:host(.is-opening) .wax-bottom {
+  animation: wax-settle 280ms ease-out var(--t-snap) both;
+}
+
+@keyframes wax-settle {
   0% {
     transform: none;
-    opacity: 1;
   }
-  14% {
-    transform: translate(-7%, -3%) rotate(-9deg);
+  40% {
+    transform: translateY(1.4%) rotate(-2deg);
   }
   100% {
-    transform: translate(-85%, 200%) rotate(-70deg) rotateY(50deg);
-    opacity: 0;
+    transform: translateY(0.7%) rotate(-1.2deg);
   }
 }
 
-@keyframes crack-right {
-  0% {
-    transform: none;
-    opacity: 1;
+/* the whole envelope gives a little when the wax lets go */
+:host(.is-opening) .envelope {
+  animation: jolt 300ms ease-out var(--t-snap);
+}
+
+@keyframes jolt {
+  0%,
+  100% {
+    translate: 0 0;
   }
-  14% {
-    transform: translate(7%, -2%) rotate(8deg);
+  25% {
+    translate: 0 1.5px;
+  }
+  60% {
+    translate: 0 -0.5px;
+  }
+}
+
+/* ---------- the card ---------- */
+
+.letter,
+.letter-lift-shadow {
+  position: absolute;
+  z-index: 3;
+  left: 5.5%;
+  right: 5.5%;
+  top: 5%;
+  height: 88%;
+}
+
+.letter-shadow {
+  position: absolute;
+  inset: 0;
+  box-shadow: 0 0.2cqi 0.6cqi rgb(30 22 12 / 0.3);
+}
+
+/*
+ * The longer, softer shadow of a card held above the table. It moves with the
+ * card but lives outside it: fading inside the card's layer would split the
+ * card up and make its torn edge an extra render pass every frame.
+ */
+.letter-lift-shadow {
+  box-shadow: 0 2.5cqi 5cqi rgb(20 14 6 / 0.32);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.letter-paper {
+  --u: 1cqi;
+  position: absolute;
+  inset: 0;
+  padding: 3cqi;
+  background: var(--paper);
+}
+
+.paper-age,
+.sheet-age {
+  position: absolute;
+  background: var(--age);
+  pointer-events: none;
+}
+
+.paper-age {
+  inset: 0;
+}
+
+.letter-inner {
+  height: 100%;
+}
+
+/* drawn out slowly against the friction of the pocket, then lifted off */
+:host(.is-opening) .letter {
+  animation:
+    letter-out 950ms 1150ms both,
+    letter-lift 400ms cubic-bezier(0.3, 0.6, 0.3, 1) 2100ms both;
+}
+
+:host(.is-opening) .letter-lift-shadow {
+  animation:
+    letter-out 950ms 1150ms both,
+    letter-lift 400ms cubic-bezier(0.3, 0.6, 0.3, 1) 2100ms both,
+    fade-in 400ms ease 2100ms both;
+}
+
+@keyframes letter-out {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    animation-timing-function: cubic-bezier(0.5, 0, 0.8, 0.4);
+  }
+  10% {
+    transform: translateY(-3%) rotate(0.4deg);
+    animation-timing-function: cubic-bezier(0.3, 0.3, 0.4, 1);
+  }
+  64% {
+    transform: translateY(-63%) rotate(-1.1deg);
+    animation-timing-function: ease-in-out;
+  }
+  82% {
+    transform: translateY(-65%) rotate(-0.3deg);
   }
   100% {
-    transform: translate(70%, 215%) rotate(58deg) rotateY(-45deg);
+    transform: translateY(-62%) rotate(0deg);
+  }
+}
+
+@keyframes letter-lift {
+  from {
+    scale: 1;
+  }
+  to {
+    scale: 1.045;
+  }
+}
+
+@keyframes fade-in {
+  from {
     opacity: 0;
   }
+  to {
+    opacity: 1;
+  }
+}
+
+:host(.is-lifting) .letter,
+:host(.is-lifting) .letter-lift-shadow {
+  visibility: hidden;
+}
+
+/* printed matter, shared by the card and the full-screen sheet; sizes are in --u */
+
+.card-frame {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid var(--rule);
+  color: var(--ink);
+}
+
+/* the second, finer rule of the frame */
+.card-frame::before {
+  content: '';
+  position: absolute;
+  inset: calc(var(--u) * 0.9);
+  border: 1px solid rgb(122 88 52 / 0.35);
+  pointer-events: none;
+}
+
+.corner {
+  position: absolute;
+  width: calc(var(--u) * 4.6);
+  aspect-ratio: 1;
+  background: var(--corner) center / contain no-repeat;
+}
+
+.corner.tl {
+  top: calc(var(--u) * 1.5);
+  left: calc(var(--u) * 1.5);
+}
+
+.corner.tr {
+  top: calc(var(--u) * 1.5);
+  right: calc(var(--u) * 1.5);
+  scale: -1 1;
+}
+
+.corner.bl {
+  bottom: calc(var(--u) * 1.5);
+  left: calc(var(--u) * 1.5);
+  scale: 1 -1;
+}
+
+.corner.br {
+  bottom: calc(var(--u) * 1.5);
+  right: calc(var(--u) * 1.5);
+  scale: -1 -1;
+}
+
+.letter-inner,
+.sheet-card {
+  padding-top: calc(var(--u) * 5);
+  gap: calc(var(--u) * 1.5);
+}
+
+/* letterpress: ink pressed into soft paper catches a little light on its lower edge */
+.card-kicker,
+.card-date {
+  font-family: var(--font-display);
+  color: rgb(70 50 32 / 0.85);
+  text-shadow: 0 0.5px 0 rgb(255 255 255 / 0.6);
+}
+
+.card-kicker {
+  font-size: calc(var(--u) * 2.2);
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-indent: 0.3em;
+  text-transform: uppercase;
+}
+
+.card-names {
+  font-family: var(--font-script);
+  font-size: calc(var(--u) * 8.4);
+  line-height: 1.15;
+  white-space: nowrap;
+  color: var(--ink);
+  /* a touch of ink spreading into the fibres */
+  text-shadow: 0 0 0.5px rgb(51 36 26 / 0.55);
+}
+
+.card-ornament {
+  width: calc(var(--u) * 21);
+  height: auto;
+  fill: rgb(122 88 52 / 0.85);
+}
+
+.card-date {
+  font-size: calc(var(--u) * 3);
+  letter-spacing: 0.1em;
 }
 
 /* ---------- hint ---------- */
@@ -850,19 +1136,17 @@
   transition-duration: 250ms;
 }
 
-/* ---------- lifting: envelope drops away, card grows into the page ---------- */
+/* ---------- lifting: envelope falls away, the card grows into the page ---------- */
 
 :host(.is-lifting) .part {
   translate: 0 42vh;
   opacity: 0;
   transition:
     translate 800ms cubic-bezier(0.5, 0, 0.75, 0),
-    opacity 500ms ease 150ms,
-    transform 900ms var(--ease-flap) 480ms,
-    z-index 0s linear 930ms;
+    opacity 500ms ease 150ms;
 }
 
-:host(.is-lifting) .ground,
+:host(.is-lifting) .cast,
 :host(.is-lifting) .leaves {
   opacity: 0;
   animation: none;
@@ -870,13 +1154,30 @@
 }
 
 .sheet {
+  --u: var(--cq);
   position: absolute;
   inset: 0;
   z-index: 6;
   visibility: hidden;
   pointer-events: none;
-  background: linear-gradient(180deg, #fdfcf9, #f5f3ec);
-  clip-path: inset(var(--ct, 50%) var(--cr, 50%) var(--cb, 50%) var(--cl, 50%) round 2px);
+  clip-path: inset(var(--ct, 50%) var(--cr, 50%) var(--cb, 50%) var(--cl, 50%) round 1px);
+}
+
+/* the paper on a layer of its own, drawn once; only the clip over it changes while the card grows */
+.sheet::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--paper);
+  will-change: transform;
+}
+
+/* the card's yellowed edges and spots stay where the card was, and fade as it grows */
+.sheet-age {
+  top: var(--ct);
+  left: var(--cl);
+  width: var(--cw);
+  height: var(--ch);
 }
 
 .sheet-frame {
@@ -885,7 +1186,6 @@
   left: var(--fl);
   width: var(--fw);
   height: var(--fh);
-  border: 1px solid rgb(176 141 87 / 0.55);
 }
 
 .sheet-card {
@@ -896,22 +1196,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: calc(var(--cq) * 6);
-  gap: calc(var(--cq) * 2);
-  color: #1e2a25;
-  transform-origin: 50% 20%;
-}
-
-.sheet-names {
-  font-size: calc(var(--cq) * 9);
-}
-
-.sheet-rule {
-  width: calc(var(--cq) * 10);
-}
-
-.sheet-date {
-  font-size: calc(var(--cq) * 3.2);
+  color: var(--ink);
 }
 
 :host(.is-lifting) .sheet {
@@ -921,6 +1206,11 @@
 :host(.is-expanding) .sheet {
   clip-path: inset(0 0 0 0 round 0px);
   transition: clip-path 1000ms var(--ease-grow);
+}
+
+:host(.is-expanding) .sheet-age {
+  opacity: 0;
+  transition: opacity 700ms ease;
 }
 
 :host(.is-expanding) .sheet-frame {
@@ -935,23 +1225,25 @@
     height 1000ms var(--ease-grow);
 }
 
-/* rule and date fade; the names fly to the heading on the page and hand over */
-.sheet-rule,
-.sheet-date {
+/* the rest of the print fades; the names fly to the heading on the page and hand over */
+.sheet .card-kicker,
+.sheet .card-ornament,
+.sheet .card-date {
   transition: opacity 400ms ease;
 }
 
-.sheet-names {
+.sheet .card-names {
   display: block;
   transform-origin: 50% 50%;
 }
 
-:host(.is-expanding) .sheet-rule,
-:host(.is-expanding) .sheet-date {
+:host(.is-expanding) .sheet .card-kicker,
+:host(.is-expanding) .sheet .card-ornament,
+:host(.is-expanding) .sheet .card-date {
   opacity: 0;
 }
 
-:host(.is-expanding) .sheet-names {
+:host(.is-expanding) .sheet .card-names {
   translate: var(--mx, 0) var(--my, -4vh);
   scale: var(--ms, 1.2);
   opacity: 0;
@@ -983,30 +1275,44 @@
 
 /* ---------- particles ---------- */
 
+/* over the table and envelope */
 .fx {
   position: absolute;
   inset: 0;
-  z-index: 8;
+  z-index: 5;
   width: 100%;
   height: 100%;
   pointer-events: none;
+}
+
+/* the petals lie on the table, so when the card is lifted they fall away with it, over the card */
+:host(.is-lifting) .fx {
+  z-index: 7;
+  translate: 0 42vh;
+  opacity: 0;
+  transition:
+    translate 800ms cubic-bezier(0.5, 0, 0.75, 0),
+    opacity 450ms ease 100ms;
 }
 
 /* ---------- reduced motion: no choreography, a calm fade ---------- */
 
 @media (prefers-reduced-motion: reduce) {
   .arrive,
-  .float,
+  .cast,
   .tilt,
-  .ground,
+  .turn,
   .seal,
-  .seal::before,
   .seal-ring,
-  .recipient,
+  .seal-glint::before,
   .leaf,
   .sheen::before,
   .hint > span {
     animation: none !important;
+  }
+
+  .front-face {
+    display: none;
   }
 
   .leaves {
@@ -1016,7 +1322,8 @@
   .flap-shadow,
   .flap-wrap,
   .flap-liner,
-  .letter {
+  .letter,
+  .letter-lift-shadow {
     transition: none !important;
     animation: none !important;
   }

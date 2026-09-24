@@ -53,6 +53,8 @@ export interface WeddingConfig {
     hintTouch: string;
     hintMouse: string;
     openLabel: string;
+    /** Small heading above the names on the card that comes out of the envelope. */
+    cardTitle: string;
   };
   hero: {
     lead: string;

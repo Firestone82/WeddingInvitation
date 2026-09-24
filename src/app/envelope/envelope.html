@@ -1,6 +1,165 @@
 <!-- warm window light on a linen table -->
 <div class="light" aria-hidden="true"></div>
 
+<div class="stage">
+  <div class="scene">
+    <!-- tossed onto the table from above, then slides to a stop -->
+    <div class="arrive">
+      <!-- its shadow on the table: far and faint while it falls, tight once it lies there -->
+      <span class="cast" aria-hidden="true"></span>
+
+      <div #tilt class="tilt">
+        <!-- lands address side up, then is turned over to show the seal -->
+        <div class="turn">
+          <button
+            #envelope
+            type="button"
+            class="envelope"
+            [attr.aria-label]="openLabel()"
+            [disabled]="opened()"
+            (click)="open()"
+            (pointerdown)="press(true)"
+            (pointerup)="press(false)"
+            (pointercancel)="press(false)"
+            (pointerleave)="press(false)"
+          >
+            <!-- inside of the back, with the liner -->
+            <span class="part env-back"></span>
+
+            <!-- the card that slides out, and its shadow once it is lifted off -->
+            <span class="letter-lift-shadow"></span>
+            <span #letter class="letter">
+              <span class="letter-shadow"></span>
+              <span #letterPaper class="letter-paper" [style.clip-path]="deckle">
+                <span class="paper-age"></span>
+                <span #letterInner class="card-frame letter-inner">
+                  <span class="corner tl"></span>
+                  <span class="corner tr"></span>
+                  <span class="corner bl"></span>
+                  <span class="corner br"></span>
+                  <ng-container *ngTemplateOutlet="cardFace" />
+                </span>
+              </span>
+            </span>
+
+            <!-- front pocket: one layer, so the texture's cut-out is applied once when it is painted -->
+            <span class="part pocket">
+              <svg class="env-pocket" viewBox="0 0 141 100" preserveAspectRatio="none" aria-hidden="true">
+                <defs>
+                  <linearGradient id="pocketSide" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0" stop-color="#2c5446" />
+                    <stop offset="1" stop-color="#20403a" />
+                  </linearGradient>
+                  <linearGradient id="pocketBottom" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stop-color="#2f5a4b" />
+                    <stop offset="1" stop-color="#244a3e" />
+                  </linearGradient>
+                </defs>
+                <path d="M0 0 L71 55 L0 100Z" fill="url(#pocketSide)" />
+                <path d="M141 0 L70 55 L141 100Z" fill="url(#pocketSide)" />
+                <path d="M0 100 L66 50 Q70.5 47 75 50 L141 100Z" fill="url(#pocketBottom)" />
+                <path
+                  d="M0 100 L66 50 Q70.5 47 75 50 L141 100"
+                  fill="none"
+                  stroke="#132a22"
+                  stroke-opacity="0.35"
+                  stroke-width="0.6"
+                  vector-effect="non-scaling-stroke"
+                />
+                <path
+                  d="M0 100 L66 50.6 Q70.5 47.6 75 50.6 L141 100"
+                  fill="none"
+                  stroke="#6f9483"
+                  stroke-opacity="0.25"
+                  stroke-width="0.6"
+                  vector-effect="non-scaling-stroke"
+                  transform="translate(0 0.8)"
+                />
+                <path
+                  d="M0 0 L71 55 M141 0 L70 55"
+                  fill="none"
+                  stroke="#132a22"
+                  stroke-opacity="0.25"
+                  stroke-width="0.6"
+                  vector-effect="non-scaling-stroke"
+                />
+              </svg>
+              <!-- laid paper, grain and wear, baked in rather than blended on top -->
+              <span class="pocket-paper"></span>
+            </span>
+
+            <!-- top flap, carrying its share of the wax when it opens -->
+            <span class="part flap-shadow"></span>
+            <span class="part flap-wrap">
+              <span class="flap">
+                <span class="flap-liner"></span>
+              </span>
+              <span class="flap-shade"></span>
+              <span class="wax-piece wax-top" [style.clip-path]="crack.top">
+                <app-seal [initials]="initials()" />
+                <svg class="wax-edge" viewBox="0 0 100 100" aria-hidden="true">
+                  <g clip-path="url(#wax-outline)">
+                    <path [attr.d]="crack.left" />
+                    <path [attr.d]="crack.right" />
+                  </g>
+                </svg>
+              </span>
+            </span>
+
+            <!-- the wax left on the envelope once it breaks -->
+            <span class="part wax-piece wax-bottom">
+              <span class="wax-clip" [style.clip-path]="crack.bottom">
+                <app-seal [initials]="initials()" />
+                <svg class="wax-edge" viewBox="0 0 100 100" aria-hidden="true">
+                  <g clip-path="url(#wax-outline)">
+                    <path [attr.d]="crack.left" />
+                    <path [attr.d]="crack.right" />
+                  </g>
+                </svg>
+              </span>
+            </span>
+
+            <!-- the intact seal, until the flap tears it -->
+            <span #seal class="part seal">
+              <span class="seal-ring"></span>
+              <app-seal [initials]="initials()" />
+              <span class="seal-glint" [style]="waxMask"></span>
+              <svg class="crack" viewBox="0 0 100 100" aria-hidden="true">
+                <defs>
+                  <!-- the wax's outline: the crack lines stop where the wax ends -->
+                  <clipPath id="wax-outline"><path [attr.d]="waxOutline" /></clipPath>
+                </defs>
+                <g clip-path="url(#wax-outline)">
+                  <path pathLength="1" [attr.d]="crack.left" />
+                  <path pathLength="1" [attr.d]="crack.right" />
+                </g>
+              </svg>
+            </span>
+
+            <span class="part sheen"></span>
+          </button>
+        </div>
+
+        <!-- the address side; tapping it early queues the opening like tapping the seal -->
+        <span class="front-face" aria-hidden="true" (click)="open()">
+          <app-postage class="postage" [initials]="initials()" [names]="names()" [postmark]="postmark()" />
+          <span class="address">
+            {{ recipient() }}
+            <svg class="swash" viewBox="0 0 120 10" aria-hidden="true">
+              <path d="M4 6 C30 1 58 9 84 4 S112 3 117 5" />
+            </svg>
+          </span>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <p class="hint" aria-hidden="true">
+    <span class="hint-touch">{{ hintTouch() }}</span>
+    <span class="hint-mouse">{{ hintMouse() }}</span>
+  </p>
+</div>
+
 <!-- soft leaf shadows, as if the sun comes through a tree outside -->
 <div class="leaves" aria-hidden="true">
   <svg class="leaf leaf-a" viewBox="0 0 400 300">
@@ -22,125 +181,30 @@
   </svg>
 </div>
 
-<div class="stage">
-  <div class="scene">
-    <div class="arrive">
-      <div class="float">
-        <div #tilt class="tilt">
-          <button
-            #envelope
-            type="button"
-            class="envelope"
-            [attr.aria-label]="openLabel()"
-            [disabled]="opened()"
-            (click)="open()"
-            (pointerdown)="press(true)"
-            (pointerup)="press(false)"
-            (pointercancel)="press(false)"
-            (pointerleave)="press(false)"
-          >
-            <!-- inside of the back, with the liner -->
-            <span class="part env-back"></span>
-
-            <!-- the card that slides out -->
-            <span #letter class="letter">
-              <span #letterInner class="letter-inner">
-                <span class="letter-names"
-                  >{{ names()[0] }} <span class="script-amp">&amp;</span> {{ names()[1] }}</span
-                >
-                <span class="letter-rule"></span>
-                <span class="letter-date">{{ dateLine() }}</span>
-              </span>
-            </span>
-
-            <!-- front pocket: side flaps + bottom flap -->
-            <svg class="part env-pocket" viewBox="0 0 141 100" preserveAspectRatio="none" aria-hidden="true">
-              <defs>
-                <linearGradient id="pocketSide" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0" stop-color="#2c5446" />
-                  <stop offset="1" stop-color="#20403a" />
-                </linearGradient>
-                <linearGradient id="pocketBottom" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0" stop-color="#2f5a4b" />
-                  <stop offset="1" stop-color="#244a3e" />
-                </linearGradient>
-              </defs>
-              <path d="M0 0 L71 55 L0 100Z" fill="url(#pocketSide)" />
-              <path d="M141 0 L70 55 L141 100Z" fill="url(#pocketSide)" />
-              <path d="M0 100 L66 50 Q70.5 47 75 50 L141 100Z" fill="url(#pocketBottom)" />
-              <path
-                d="M0 100 L66 50 Q70.5 47 75 50 L141 100"
-                fill="none"
-                stroke="#132a22"
-                stroke-opacity="0.35"
-                stroke-width="0.6"
-                vector-effect="non-scaling-stroke"
-              />
-              <path
-                d="M0 100 L66 50.6 Q70.5 47.6 75 50.6 L141 100"
-                fill="none"
-                stroke="#6f9483"
-                stroke-opacity="0.25"
-                stroke-width="0.6"
-                vector-effect="non-scaling-stroke"
-                transform="translate(0 0.8)"
-              />
-              <path
-                d="M0 0 L71 55 M141 0 L70 55"
-                fill="none"
-                stroke="#132a22"
-                stroke-opacity="0.25"
-                stroke-width="0.6"
-                vector-effect="non-scaling-stroke"
-              />
-            </svg>
-
-            <!-- handwritten address -->
-            <span class="part recipient">{{ recipient() }}</span>
-
-            <!-- top flap -->
-            <span class="part flap-shadow"></span>
-            <span class="part flap-wrap">
-              <span class="flap">
-                <span class="flap-liner"></span>
-                <span class="flap-shade"></span>
-              </span>
-            </span>
-
-            <!-- wax seal, split along a crack -->
-            <span #seal class="seal">
-              <span class="seal-ring"></span>
-              <span class="seal-half seal-left"><app-seal [initials]="initials()" /></span>
-              <span class="seal-half seal-right"><app-seal [initials]="initials()" /></span>
-              <svg class="crack" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-                <path pathLength="1" d="M54 -2 L49 18 L56 34 L47 52 L55 70 L48 86 L52 102" />
-              </svg>
-            </span>
-
-            <!-- paper grain and a sheen that follows the light -->
-            <span class="part grain"></span>
-            <span class="part sheen"></span>
-          </button>
-        </div>
-      </div>
-    </div>
-    <span class="ground" aria-hidden="true"></span>
-  </div>
-
-  <p class="hint" aria-hidden="true">
-    <span class="hint-touch">{{ hintTouch() }}</span>
-    <span class="hint-mouse">{{ hintMouse() }}</span>
-  </p>
-</div>
-
 <!-- the card, lifted out and grown to fill the screen -->
 <div #sheet class="sheet" aria-hidden="true">
-  <span class="sheet-frame"></span>
+  <span class="sheet-age"></span>
+  <span class="card-frame sheet-frame">
+    <span class="corner tl"></span>
+    <span class="corner tr"></span>
+    <span class="corner bl"></span>
+    <span class="corner br"></span>
+  </span>
   <span class="sheet-card">
-    <span #sheetNames class="sheet-names">{{ names()[0] }} <span class="script-amp">&amp;</span> {{ names()[1] }}</span>
-    <span class="sheet-rule"></span>
-    <span class="sheet-date">{{ dateLine() }}</span>
+    <ng-container *ngTemplateOutlet="cardFace" />
   </span>
 </div>
 
 <canvas #fx class="fx" aria-hidden="true"></canvas>
+
+<!-- what is printed on the card, shared by the card in the envelope and the full-screen sheet -->
+<ng-template #cardFace>
+  <span class="card-kicker">{{ cardTitle() }}</span>
+  <span class="card-names">{{ names()[0] }} <span class="script-amp">&amp;</span> {{ names()[1] }}</span>
+  <svg class="card-ornament" viewBox="0 0 120 12" aria-hidden="true">
+    <path d="M6 6 L51 5.5 L51 6.5 Z M114 6 L69 5.5 L69 6.5 Z M60 2.2 L63.8 6 L60 9.8 L56.2 6 Z" />
+    <circle cx="53.6" cy="6" r="0.9" />
+    <circle cx="66.4" cy="6" r="0.9" />
+  </svg>
+  <span class="card-date">{{ dateLine() }}</span>
+</ng-template>

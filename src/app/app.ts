@@ -1,7 +1,7 @@
 import { Component, DestroyRef, effect, inject, signal } from '@angular/core';
 import { WEDDING } from './config/wedding.config';
 import { IntroState } from './core/intro-state';
-import { formatShortDate } from './core/dates';
+import { formatPostmark, formatShortDate } from './core/dates';
 import { recipientFromUrl } from './core/browser';
 import { Envelope } from './envelope/envelope';
 import { Hero } from './sections/hero/hero';
@@ -34,6 +34,7 @@ export class App {
     : WEDDING.envelope.recipient;
   protected readonly names: [string, string] = [WEDDING.couple.first, WEDDING.couple.second];
   protected readonly shortDate = formatShortDate(WEDDING.locale, WEDDING.timeZone, WEDDING.start);
+  protected readonly postmark = formatPostmark(WEDDING.timeZone, WEDDING.start);
 
   private readonly audio = WEDDING.music ? new Audio(WEDDING.music.src) : null;
 

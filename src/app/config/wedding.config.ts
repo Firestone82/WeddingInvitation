@@ -27,6 +27,7 @@ const CONFIG: WeddingConfig = {
     hintTouch: 'Otevřete klepnutím na pečeť',
     hintMouse: 'Otevřete kliknutím na pečeť',
     openLabel: 'Otevřít pozvánku',
+    cardTitle: 'Svatební oznámení',
   },
 
   hero: {

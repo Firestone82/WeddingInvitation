@@ -10,28 +10,38 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { Seal } from '../shared/seal/seal';
+import { NgTemplateOutlet } from '@angular/common';
+import { Seal, WAX_OUTLINE } from '../shared/seal/seal';
 import { prefersReducedMotion } from '../core/browser';
 import { ParticleField } from './particles';
 import { BRANCH_A, BRANCH_B } from './leaves';
+import { deckle, sealCrack } from './paper';
+import { Postage, Postmark } from './postage/postage';
+import { fibres, grain } from './textures';
 
 /**
  * loading   waiting for fonts so the handwriting never flashes
- * arriving  envelope drops in, seal is stamped, address is written
+ * arriving  envelope is tossed onto the table address side up, then turned over
  * sealed    idle, waiting for the tap
- * opening   seal cracks, flap opens, letter slides out
+ * opening   the flap tears the seal, falls open, the card is drawn out
  * lifting   card leaves the envelope and grows to fill the screen
  * leaving   card dissolves into the page, petals keep falling
  */
 type Phase = 'loading' | 'arriving' | 'sealed' | 'opening' | 'lifting' | 'leaving';
 
 /** Timeline in ms. Keep in sync with envelope.css. */
-const ARRIVE_MS = 1900;
-const OPEN = { crack: 280, petals: 1350, lift: 2500, leave: 3250 } as const;
+const ARRIVE_MS = 2700;
+const OPEN = { snap: 440, spill: 1400, lift: 2500, leave: 3250 } as const;
+
+/** The seal's fracture, and a mask of the wax's outline for the light glinting across it. */
+const CRACK = sealCrack(12);
+const WAX_MASK = `url("data:image/svg+xml,${encodeURIComponent(
+  `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='${WAX_OUTLINE}'/></svg>`,
+)}")`;
 
 @Component({
   selector: 'app-envelope',
-  imports: [Seal],
+  imports: [Seal, Postage, NgTemplateOutlet],
   templateUrl: './envelope.html',
   styleUrl: './envelope.css',
   host: {
@@ -53,6 +63,8 @@ export class Envelope {
   readonly initials = input.required<[string, string]>();
   readonly names = input.required<[string, string]>();
   readonly dateLine = input.required<string>();
+  readonly postmark = input.required<Postmark>();
+  readonly cardTitle = input.required<string>();
   readonly hintTouch = input.required<string>();
   readonly hintMouse = input.required<string>();
   readonly openLabel = input.required<string>();
@@ -73,15 +85,23 @@ export class Envelope {
   protected readonly opened = computed(() => ['opening', 'lifting', 'leaving'].includes(this.phase()));
   protected readonly branchA = BRANCH_A;
   protected readonly branchB = BRANCH_B;
+  protected readonly deckle = deckle(5);
+  protected readonly crack = CRACK;
+  protected readonly waxOutline = WAX_OUTLINE;
+  protected readonly waxMask = {
+    'mask-image': WAX_MASK,
+    '-webkit-mask-image': WAX_MASK,
+    'mask-size': '100% 100%',
+    '-webkit-mask-size': '100% 100%',
+  };
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
   private readonly canvas = viewChild.required<ElementRef<HTMLCanvasElement>>('fx');
   private readonly envelopeEl = viewChild.required<ElementRef<HTMLElement>>('envelope');
   private readonly tiltEl = viewChild.required<ElementRef<HTMLElement>>('tilt');
-  private readonly letterEl = viewChild.required<ElementRef<HTMLElement>>('letter');
+  private readonly letterPaperEl = viewChild.required<ElementRef<HTMLElement>>('letterPaper');
   private readonly letterInnerEl = viewChild.required<ElementRef<HTMLElement>>('letterInner');
   private readonly sheetEl = viewChild.required<ElementRef<HTMLElement>>('sheet');
-  private readonly sheetNamesEl = viewChild.required<ElementRef<HTMLElement>>('sheetNames');
   private readonly sealEl = viewChild.required<ElementRef<HTMLElement>>('seal');
 
   private readonly reduced = prefersReducedMotion();
@@ -104,6 +124,8 @@ export class Envelope {
     });
 
     afterNextRender(() => {
+      this.host.style.setProperty('--grain', grain());
+      this.host.style.setProperty('--fibres', fibres());
       if (this.reduced) {
         this.phase.set('sealed');
         return;
@@ -171,8 +193,8 @@ export class Envelope {
     t.ly += (g.ly - t.ly) * k;
     this.applyTilt();
 
-    // Remove the intro once the card is gone and the last petal has landed.
-    if (this.phase() === 'leaving' && !this.done && performance.now() - this.leaveAt > 900 && !this.field?.busy) {
+    // Remove the intro once the card has faded out (1150ms in envelope.css) and nothing is still falling.
+    if (this.phase() === 'leaving' && !this.done && performance.now() - this.leaveAt > 1250 && !this.field?.busy) {
       this.finish();
     }
   }
@@ -237,20 +259,20 @@ export class Envelope {
     this.takeOverSway();
     this.phase.set('opening');
     this.field?.stopAmbient();
-    navigator.vibrate?.(12);
+    navigator.vibrate?.(10);
 
-    this.later(OPEN.crack, () => {
-      const s = this.sealEl().nativeElement.getBoundingClientRect();
-      const at = { x: s.left + s.width / 2, y: s.top + s.height / 2 };
-      this.field?.crumbs(at, 16);
-      this.field?.sparks(at, 26);
-      navigator.vibrate?.([8, 40, 18]);
+    // Measure now: the intact seal is hidden the moment it breaks.
+    const s = this.sealEl().nativeElement.getBoundingClientRect();
+    const crack = CRACK.points.map(([x, y]) => ({ x: s.left + (x / 100) * s.width, y: s.top + (y / 100) * s.height }));
+    this.later(OPEN.snap, () => {
+      this.field?.chips(crack, 18);
+      navigator.vibrate?.([6, 30, 14]);
     });
 
-    this.later(OPEN.petals, () => {
+    this.later(OPEN.spill, () => {
       const e = this.envelopeEl().nativeElement.getBoundingClientRect();
-      const count = window.innerWidth < 640 ? 46 : 70;
-      this.field?.petals({ x: e.left + e.width / 2, y: e.top + e.height * 0.12 }, e.width * 0.7, count);
+      const count = window.innerWidth < 640 ? 30 : 44;
+      this.field?.spill({ x: e.left + e.width / 2, y: e.top + e.height * 0.18 }, e.width * 0.62, count);
     });
 
     this.later(OPEN.lift, () => this.lift());
@@ -267,28 +289,35 @@ export class Envelope {
 
   /** Place the full-screen sheet exactly over the card, then let it grow. */
   private lift(): void {
-    const card = this.letterEl().nativeElement.getBoundingClientRect();
+    const paper = this.letterPaperEl().nativeElement;
+    const card = paper.getBoundingClientRect();
     const inner = this.letterInnerEl().nativeElement.getBoundingClientRect();
-    const env = this.envelopeEl().nativeElement.getBoundingClientRect();
+    // the card has been lifted (scaled up) off the envelope; the print on the sheet must match
+    const lifted = card.width / paper.offsetWidth;
     const vw = window.innerWidth;
     const vh = window.innerHeight;
-    const s = this.sheetEl().nativeElement.style;
+    const sheet = this.sheetEl().nativeElement;
+    const s = sheet.style;
 
     s.setProperty('--ct', `${card.top}px`);
     s.setProperty('--cr', `${vw - card.right}px`);
     s.setProperty('--cb', `${vh - card.bottom}px`);
     s.setProperty('--cl', `${card.left}px`);
+    s.setProperty('--cw', `${card.width}px`);
+    s.setProperty('--ch', `${card.height}px`);
     s.setProperty('--ft', `${inner.top}px`);
     s.setProperty('--fl', `${inner.left}px`);
     s.setProperty('--fw', `${inner.width}px`);
     s.setProperty('--fh', `${inner.height}px`);
-    s.setProperty('--cq', `${env.width / 100}px`);
+    s.setProperty('--cq', `${(this.envelopeEl().nativeElement.offsetWidth / 100) * lifted}px`);
 
     this.phase.set('lifting');
 
     // Aim the names at the heading on the page, so they appear to land there.
     requestAnimationFrame(() => {
-      const from = this.sheetNamesEl().nativeElement.getBoundingClientRect();
+      const names = sheet.querySelector<HTMLElement>('.card-names');
+      if (!names) return;
+      const from = names.getBoundingClientRect();
       const to = document.getElementById(this.namesTarget())?.getBoundingClientRect();
       if (!to || !from.width) return;
       const scale = Math.min(2.6, Math.max(1, (to.width * 0.8) / from.width));

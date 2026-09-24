@@ -3,7 +3,7 @@ export interface Point {
   y: number;
 }
 
-type Kind = 'mote' | 'petal' | 'spark' | 'crumb';
+type Kind = 'mote' | 'petal' | 'chip';
 
 interface Particle {
   kind: Kind;
@@ -11,6 +11,9 @@ interface Particle {
   y: number;
   vx: number;
   vy: number;
+  /** height above the table (we look straight down at it), and its speed */
+  z: number;
+  vz: number;
   rot: number;
   vr: number;
   /** flip phase for petals: cos(flip) is the visible width, sign is which side faces us */
@@ -24,13 +27,14 @@ interface Particle {
   fade: number;
 }
 
+/** dried rose petals: dusty pinks, a deep burgundy, ivory and a faded ochre */
 const PETAL_COLORS: [number, number, number][] = [
-  [231, 207, 200],
-  [201, 154, 148],
-  [181, 100, 109],
-  [216, 191, 138],
-  [243, 231, 223],
-  [217, 179, 171],
+  [196, 128, 126],
+  [168, 88, 98],
+  [222, 188, 174],
+  [234, 218, 200],
+  [198, 162, 112],
+  [138, 66, 80],
 ];
 const GOLD: [number, number, number] = [216, 191, 138];
 const WAX: [number, number, number] = [110, 28, 41];
@@ -68,6 +72,7 @@ export class ParticleField {
   private w = 0;
   private h = 0;
   private readonly onResize = () => this.resize();
+  private wasStill = false;
 
   constructor(
     private readonly canvas: HTMLCanvasElement,
@@ -80,9 +85,13 @@ export class ParticleField {
     this.raf = requestAnimationFrame(this.loop);
   }
 
-  /** true while petals, sparks or crumbs are still on screen */
+  /** true while wax chips or petals are still in the air */
   get busy(): boolean {
-    return this.particles.some((p) => p.kind !== 'mote');
+    return this.particles.some((p) => p.kind !== 'mote' && this.moving(p));
+  }
+
+  private moving(p: Particle): boolean {
+    return p.z > 0 || p.vz !== 0 || p.vx !== 0 || p.vy !== 0;
   }
 
   destroy(): void {
@@ -104,94 +113,78 @@ export class ParticleField {
     for (const p of this.particles) if (p.kind === 'mote') p.life = p.age + 700;
   }
 
-  sparks(at: Point, count: number): void {
+  /** Chips of wax popping off along the fracture; they hop, land and skid to a stop on the paper. */
+  chips(along: Point[], count: number): void {
     for (let i = 0; i < count; i++) {
+      const at = pick(along);
       const angle = rand(0, Math.PI * 2);
-      const speed = rand(1.2, 5.5);
+      const speed = rand(0.5, 2.6);
       this.particles.push({
-        kind: 'spark',
-        x: at.x,
-        y: at.y,
-        vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed - 1,
-        rot: rand(0, Math.PI),
-        vr: rand(-0.1, 0.1),
-        flip: 0,
-        vflip: 0,
-        size: rand(2.5, 6),
-        age: 0,
-        life: rand(600, 1300),
-        color: GOLD,
-        seed: rand(0, 100),
-        fade: 0,
-      });
-    }
-  }
-
-  crumbs(at: Point, count: number): void {
-    for (let i = 0; i < count; i++) {
-      const angle = rand(-Math.PI * 0.95, -Math.PI * 0.05);
-      const speed = rand(1, 3.6);
-      this.particles.push({
-        kind: 'crumb',
-        x: at.x + rand(-12, 12),
-        y: at.y + rand(-8, 8),
+        ...this.blank('chip', at.x + rand(-2, 2), at.y + rand(-2, 2)),
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed,
+        z: 2,
+        vz: rand(1.2, 3.4),
         rot: rand(0, Math.PI * 2),
-        vr: rand(-0.25, 0.25),
-        flip: 0,
-        vflip: 0,
-        size: rand(1.6, 3.6),
-        age: 0,
-        life: rand(1100, 1700),
+        vr: rand(-0.3, 0.3),
+        size: rand(1.3, 3.2),
         color: WAX,
-        seed: rand(0, 100),
-        fade: 0,
       });
     }
   }
 
-  /** Petals thrown up out of the envelope mouth, then fluttering down. */
-  petals(from: Point, width: number, count: number): void {
+  /**
+   * Dried petals tucked in with the card: they tumble out of the envelope's mouth
+   * as the card is drawn, flutter down and settle on the table around it.
+   */
+  spill(from: Point, width: number, count: number): void {
     for (let i = 0; i < count; i++) {
       this.particles.push({
-        kind: 'petal',
-        x: from.x + rand(-width / 2, width / 2),
-        y: from.y + rand(-6, 10),
+        ...this.blank('petal', from.x + rand(-width / 2, width / 2), from.y + rand(-4, 8)),
         vx: rand(-2.6, 2.6),
-        vy: rand(-9.5, -4.5),
+        vy: rand(-2.8, 0.4),
+        z: rand(8, 16),
+        vz: rand(0.2, 1.4),
         rot: rand(0, Math.PI * 2),
-        vr: rand(-0.06, 0.06),
+        vr: rand(-0.07, 0.07),
         flip: rand(0, Math.PI * 2),
-        vflip: rand(0.04, 0.11),
-        size: rand(6, 11.5),
-        age: -rand(0, 650),
-        life: Infinity,
+        vflip: rand(0.05, 0.12),
+        size: rand(5, 9),
+        age: -rand(0, 700),
         color: pick(PETAL_COLORS),
-        seed: rand(0, 100),
-        fade: 0,
       });
     }
   }
 
-  private mote(x: number, y: number, age = 0): Particle {
+  private blank(kind: Kind, x: number, y: number): Particle {
     return {
-      kind: 'mote',
+      kind,
       x,
       y,
-      vx: rand(0.03, 0.14),
-      vy: rand(-0.14, -0.03),
+      vx: 0,
+      vy: 0,
+      z: 0,
+      vz: 0,
       rot: 0,
       vr: 0,
       flip: 0,
       vflip: 0,
-      size: rand(0.8, 2.3),
-      age,
+      size: 1,
+      age: 0,
       life: Infinity,
       color: GOLD,
       seed: rand(0, 100),
       fade: 0,
+    };
+  }
+
+  private mote(x: number, y: number, age = 0): Particle {
+    return {
+      ...this.blank('mote', x, y),
+      vx: rand(0.03, 0.14),
+      vy: rand(-0.14, -0.03),
+      size: rand(0.8, 2.3),
+      age,
     };
   }
 
@@ -203,6 +196,7 @@ export class ParticleField {
     this.canvas.width = Math.round(this.w * dpr);
     this.canvas.height = Math.round(this.h * dpr);
     this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    this.wasStill = false; // resizing cleared the canvas
   }
 
   private loop(now: number): void {
@@ -210,7 +204,10 @@ export class ParticleField {
     this.last = now;
     this.onFrame?.(dt);
     this.update(dt);
-    this.draw();
+    // once everything has landed the picture no longer changes: skip redrawing (and re-uploading) the canvas
+    const still = !this.particles.some((p) => p.kind === 'mote' || p.age < 0 || p.fade < 1 || this.moving(p));
+    if (!still || !this.wasStill) this.draw();
+    this.wasStill = still;
     this.raf = requestAnimationFrame(this.loop);
   }
 
@@ -235,27 +232,22 @@ export class ParticleField {
           }
           break;
         case 'petal':
-          p.vy = Math.min(p.vy + 0.16 * f, 1.9 + Math.sin(p.seed) * 0.4);
-          p.vx = p.vx * Math.pow(0.975, f) + Math.sin(p.age * 0.0026 + p.seed) * 0.045 * f;
-          p.x += p.vx * f;
-          p.y += p.vy * f;
-          p.rot += p.vr * f;
-          p.flip += p.vflip * f;
-          if (p.y > this.h + 30) p.life = 0;
+          if (p.z > 0) {
+            // air drag and a lazy flutter while it sinks
+            p.vz = Math.max(p.vz - 0.09 * f, -0.45 - Math.sin(p.flip) * 0.15);
+            p.vx = p.vx * Math.pow(0.985, f) + Math.sin(p.age * 0.003 + p.seed) * 0.03 * f;
+            p.vy *= Math.pow(0.985, f);
+            p.flip += p.vflip * f;
+            p.rot += p.vr * f;
+          }
+          this.move(p, f, 0.8);
           break;
-        case 'spark':
-          p.vx *= Math.pow(0.92, f);
-          p.vy = p.vy * Math.pow(0.92, f) + 0.03 * f;
-          p.x += p.vx * f;
-          p.y += p.vy * f;
-          p.rot += p.vr * f;
-          break;
-        case 'crumb':
-          p.vy += 0.22 * f;
-          p.vx *= Math.pow(0.99, f);
-          p.x += p.vx * f;
-          p.y += p.vy * f;
-          p.rot += p.vr * f;
+        case 'chip':
+          if (p.z > 0) {
+            p.vz -= 0.28 * f;
+            p.rot += p.vr * f;
+          }
+          this.move(p, f, 0.72);
           break;
       }
 
@@ -263,6 +255,33 @@ export class ParticleField {
       if (p.age < p.life && p.y < this.h + 40) keep.push(p);
     }
     this.particles = keep;
+  }
+
+  /** Move through the air; on the table, bounce a little and slide to a stop. */
+  private move(p: Particle, f: number, friction: number): void {
+    p.x += p.vx * f;
+    p.y += p.vy * f;
+    p.z += p.vz * f;
+    if (p.z <= 0) {
+      p.z = 0;
+      p.vz = p.vz < -1 ? -p.vz * 0.3 : 0;
+      p.vx *= Math.pow(friction, f);
+      p.vy *= Math.pow(friction, f);
+      p.vr *= Math.pow(friction, f);
+      if (Math.hypot(p.vx, p.vy) < 0.05) p.vx = p.vy = 0;
+    }
+  }
+
+  /** Its shadow on the table: further off and fainter the higher it is. Light comes from the top left. */
+  private shadow(p: Particle, alpha: number, shape: () => void): void {
+    if (p.z <= 0.3) return;
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.translate(p.x + 0.6 + p.z * 0.35, p.y + 1 + p.z * 0.55);
+    ctx.rotate(p.rot);
+    ctx.fillStyle = `rgba(18,30,24,${alpha * Math.max(0.08, 0.3 - p.z * 0.012)})`;
+    shape();
+    ctx.restore();
   }
 
   private draw(): void {
@@ -286,21 +305,30 @@ export class ParticleField {
         }
 
         case 'petal': {
-          const width = Math.cos(p.flip);
-          const back = width < 0 ? 0.82 : 1;
-          const s = p.size;
+          const width = Math.max(0.14, Math.abs(Math.cos(p.flip)));
+          const back = Math.cos(p.flip) < 0 ? 0.82 : 1;
+          const s = p.size * (1 + p.z / 70);
+          const petal = () => {
+            ctx.scale(width, 1);
+            ctx.beginPath();
+            ctx.moveTo(0, -s);
+            ctx.bezierCurveTo(s * 0.95, -s * 0.55, s * 0.7, s * 0.8, 0, s);
+            ctx.bezierCurveTo(-s * 0.7, s * 0.8, -s * 0.95, -s * 0.55, 0, -s);
+            ctx.fill();
+          };
+          this.shadow(p, alpha, petal);
           ctx.save();
           ctx.translate(p.x, p.y);
           ctx.rotate(p.rot);
-          ctx.scale(Math.max(0.12, Math.abs(width)), 1);
           ctx.fillStyle = `rgba(${Math.round(r * back)},${Math.round(g * back)},${Math.round(b * back)},${alpha})`;
+          petal();
+          // the darker, crinkled base of a dried petal and its central vein
+          ctx.fillStyle = `rgba(90,40,40,${alpha * 0.16})`;
           ctx.beginPath();
-          ctx.moveTo(0, -s);
-          ctx.bezierCurveTo(s * 0.95, -s * 0.55, s * 0.7, s * 0.8, 0, s);
-          ctx.bezierCurveTo(-s * 0.7, s * 0.8, -s * 0.95, -s * 0.55, 0, -s);
+          ctx.ellipse(0, s * 0.62, s * 0.34, s * 0.3, 0, 0, Math.PI * 2);
           ctx.fill();
-          ctx.strokeStyle = `rgba(255,255,255,${alpha * 0.28})`;
-          ctx.lineWidth = 0.8;
+          ctx.strokeStyle = `rgba(255,245,235,${alpha * 0.3})`;
+          ctx.lineWidth = 0.7 / width;
           ctx.beginPath();
           ctx.moveTo(0, -s * 0.7);
           ctx.quadraticCurveTo(s * 0.12, 0, 0, s * 0.75);
@@ -309,46 +337,29 @@ export class ParticleField {
           break;
         }
 
-        case 'spark': {
-          const tw = 0.55 + 0.45 * Math.abs(Math.sin(p.age * 0.018 + p.seed));
-          const s = p.size * tw;
+        case 'chip': {
+          const s = p.size * (1 + p.z / 40);
+          const chip = () => {
+            ctx.beginPath();
+            ctx.moveTo(-s, -s * 0.6);
+            ctx.lineTo(s * 0.9, -s * 0.3);
+            ctx.lineTo(s * 0.5, s * 0.8);
+            ctx.lineTo(-s * 0.4, s * 0.9);
+            ctx.closePath();
+            ctx.fill();
+          };
+          this.shadow(p, alpha, chip);
           ctx.save();
           ctx.translate(p.x, p.y);
           ctx.rotate(p.rot);
           ctx.fillStyle = `rgba(${r},${g},${b},${alpha})`;
-          ctx.beginPath();
-          for (let i = 0; i < 4; i++) {
-            const a = (i * Math.PI) / 2;
-            ctx.lineTo(Math.cos(a) * s, Math.sin(a) * s);
-            ctx.lineTo(Math.cos(a + Math.PI / 4) * s * 0.28, Math.sin(a + Math.PI / 4) * s * 0.28);
-          }
-          ctx.closePath();
-          ctx.fill();
-          ctx.fillStyle = `rgba(255,250,235,${alpha * 0.9})`;
-          ctx.beginPath();
-          ctx.arc(0, 0, s * 0.18, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.restore();
-          break;
-        }
-
-        case 'crumb': {
-          const s = p.size;
-          ctx.save();
-          ctx.translate(p.x, p.y);
-          ctx.rotate(p.rot);
-          ctx.fillStyle = `rgba(${r},${g},${b},${alpha})`;
+          chip();
+          // the polished face catches the light
+          ctx.fillStyle = `rgba(214,120,130,${alpha * 0.55})`;
           ctx.beginPath();
           ctx.moveTo(-s, -s * 0.6);
-          ctx.lineTo(s * 0.9, -s * 0.2);
-          ctx.lineTo(s * 0.2, s);
-          ctx.closePath();
-          ctx.fill();
-          ctx.fillStyle = `rgba(190,90,105,${alpha * 0.7})`;
-          ctx.beginPath();
-          ctx.moveTo(-s, -s * 0.6);
-          ctx.lineTo(s * 0.9, -s * 0.2);
-          ctx.lineTo(0, -s * 0.25);
+          ctx.lineTo(s * 0.9, -s * 0.3);
+          ctx.lineTo(0, -s * 0.1);
           ctx.closePath();
           ctx.fill();
           ctx.restore();

@@ -26,6 +26,16 @@ export function formatShortDate(locale: string, timeZone: string, iso: string): 
   );
 }
 
+const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
+
+/** Date as struck by an old post-office stamp: day, month in Roman numerals, year. */
+export function formatPostmark(timeZone: string, iso: string): { day: string; month: string; year: string } {
+  const parts = new Intl.DateTimeFormat('en', { timeZone, day: 'numeric', month: 'numeric', year: 'numeric' })
+    .formatToParts(new Date(iso))
+    .reduce<Record<string, string>>((all, p) => ({ ...all, [p.type]: p.value }), {});
+  return { day: parts['day'], month: ROMAN[Number(parts['month']) - 1], year: parts['year'] };
+}
+
 export function formatTime(locale: string, timeZone: string, iso: string): string {
   return new Intl.DateTimeFormat(locale, { timeZone, hour: '2-digit', minute: '2-digit' }).format(new Date(iso));
 }

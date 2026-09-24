@@ -1,7 +1,12 @@
-import { Component, input } from '@angular/core';
+import { afterNextRender, Component, input, signal } from '@angular/core';
+import { waxSeal } from './wax';
 
-let nextId = 0;
+export { WAX_OUTLINE } from './wax';
 
+/**
+ * A wax seal. It is painted once into a bitmap (see wax.ts) and shown as an
+ * image, so animating it is as cheap as moving a picture.
+ */
 @Component({
   selector: 'app-seal',
   templateUrl: './seal.html',
@@ -10,5 +15,11 @@ let nextId = 0;
 })
 export class Seal {
   readonly initials = input.required<[string, string]>();
-  protected readonly id = `seal${nextId++}-`;
+  protected readonly src = signal<string | null>(null);
+
+  constructor() {
+    afterNextRender(() => {
+      waxSeal(this.initials()).then((url) => this.src.set(url));
+    });
+  }
 }

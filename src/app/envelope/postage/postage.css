@@ -1,0 +1,24 @@
+:host {
+  position: relative;
+  display: block;
+  aspect-ratio: 60 / 72;
+}
+
+.stamp {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: auto;
+  rotate: 2.5deg;
+}
+
+.postmark {
+  position: absolute;
+  top: 14%;
+  right: 30%;
+  width: 190%;
+  height: auto;
+  rotate: -9deg;
+  overflow: visible;
+}
