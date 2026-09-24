@@ -232,7 +232,7 @@ function paint(initials: [string, string]): string {
   const hb = blur(levels(broad), 2.6 * PX);
   const hf = blur(levels(fine), 0.45 * PX);
   const alpha = levels(mask);
-  const shade = blur(alpha, 1.3 * PX);
+  const shade = blur(alpha, 0.8 * PX);
   const height = new Float32Array(hb.length);
   for (let i = 0; i < height.length; i++) height[i] = hb[i] + 0.55 * hf[i];
 
@@ -252,8 +252,8 @@ function paint(initials: [string, string]): string {
 
   const out = new ImageData(SIZE, SIZE);
   const px = out.data;
-  const sx = Math.round(0.5 * PX);
-  const sy = Math.round(1.5 * PX);
+  const sx = Math.round(0.4 * PX);
+  const sy = Math.round(1.1 * PX);
   const h = (x: number, y: number) =>
     height[Math.min(SIZE - 1, Math.max(0, y)) * SIZE + Math.min(SIZE - 1, Math.max(0, x))];
 
@@ -262,7 +262,7 @@ function paint(initials: [string, string]): string {
       const i = y * SIZE + x;
       // the wax's own shadow on the paper
       const sxy = Math.min(SIZE - 1, Math.max(0, y - sy)) * SIZE + Math.min(SIZE - 1, Math.max(0, x - sx));
-      const shadowA = shade[sxy] * 0.5;
+      const shadowA = shade[sxy] * 0.45;
       const a = alpha[i];
 
       // shadow colour, premultiplied, under the wax
